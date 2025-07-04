@@ -310,19 +310,17 @@ function App() {
                                     />
                                   ) : (
                                     <>
-                                  {task.title}
+                                      {task.title}
                                       <button
                                         onClick={e => { e.stopPropagation(); handleTaskEdit(task.objectId, { editingTitle: true }); }}
-                                        style={{background: 'none', border: 'none', color: '#aa96da', cursor: 'pointer', padding: '2px'}}
+                                        style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}}
                                         aria-label="编辑任务标题"
-                                      >
-                                        <div className="icon-edit text-xs"></div>
-                                      </button>
+                                      >✏️</button>
                                     </>
                                   )}
                                 </h4>
                                 <span style={{fontSize: '12px', color: '#6c757d', display: 'flex', alignItems: 'center', gap: '4px'}}>
-                                  {task.category} • 截止: 
+                                  {task.category} • 截止:
                                   {task.editingDeadline ? (
                                     <input
                                       type="date"
@@ -338,11 +336,9 @@ function App() {
                                       <span>{new Date(task.deadline).toLocaleDateString()}</span>
                                       <button
                                         onClick={e => { e.stopPropagation(); handleTaskEdit(task.objectId, { editingDeadline: true }); }}
-                                        style={{background: 'none', border: 'none', color: '#aa96da', cursor: 'pointer', padding: '2px'}}
+                                        style={{marginLeft: '4px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}}
                                         aria-label="编辑截止时间"
-                                      >
-                                        <div className="icon-edit text-xs"></div>
-                                      </button>
+                                      >✏️</button>
                                     </>
                                   )}
                                 </span>
@@ -521,7 +517,7 @@ function App() {
               <div style={{flex: 1, minWidth: '300px'}}>
                 {!showAllTasks ? (
                   <div className="card" style={{padding: '16px'}}>
-                    <div className="oval-label-today" style={{marginBottom: '12px', fontSize: '16px', fontWeight: 600}}>任务列表</div>
+                    <div className="oval-label-today" style={{marginBottom: '12px', fontSize: '18px', fontWeight: 600, color: '#2563eb', textAlign: 'center', background: '#e0e7ff', borderRadius: '20px', width: '180px', margin: '0 auto'}}>任务列表</div>
                     {(() => {
                       const dateTasks = tasks.filter(task => {
                         const dateStr = selectedDate;
@@ -536,13 +532,13 @@ function App() {
                       return dateTasks.map((task, idx) => (
                         <div key={task.objectId} style={{marginBottom: '16px', fontSize: '14px', color: '#495057'}}>
                           <div style={{fontWeight: 500, marginBottom: '4px'}}>
-                            {['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][idx] || idx+1}. {task.title} - {task.deadline || task.scheduledDate || selectedDate}
+                            {['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][idx] || idx+1}. {task.title}
                           </div>
                           {task.subtasks && task.subtasks.length > 0 && (
                             <div style={{marginLeft: '24px', marginTop: '2px'}}>
                               {task.subtasks.filter(subtask => typeof subtask === 'object' && subtask.date === selectedDate).map((subtask, sidx) => (
                                 <div key={sidx} style={{fontSize: '13px', color: '#6c757d', marginBottom: '2px'}}>
-                                  {['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][sidx] || sidx+1}. {subtask.name} - {subtask.date}
+                                  {['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][sidx] || sidx+1}. {subtask.name}
                                 </div>
                               ))}
                             </div>
