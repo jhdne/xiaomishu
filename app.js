@@ -313,92 +313,74 @@ function App() {
                                     </div>
                                     {task.subtasks.map((subtask, index) => {
                                       const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
-                                      // 新增编辑状态分离
-                                      const isEditingName = subtask.editingName;
-                                      const isEditingDate = subtask.editingDate;
+                                      const isEditing = subtask.editing;
                                       return (
                                         <div key={index} style={{fontSize: '11px', color: '#6c757d', marginLeft: '8px', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap'}}>
                                           <span style={{fontWeight: '500', color: '#495057'}}>{circledNumbers[index] || `⑩+${index-9}`}</span>
-                                          {isEditingName ? (
-                                            <input
-                                              type="text"
-                                              value={subtask.name}
-                                              autoFocus
-                                              onChange={e => {
-                                                const updated = [...task.subtasks];
-                                                updated[index] = { ...subtask, name: e.target.value };
-                                                handleTaskEdit(task.objectId, { subtasks: updated });
-                                              }}
-                                              onBlur={() => {
-                                                const updated = [...task.subtasks];
-                                                updated[index] = { ...subtask, editingName: false };
-                                                handleTaskEdit(task.objectId, { subtasks: updated });
-                                              }}
-                                              onKeyDown={e => {
-                                                if (e.key === 'Enter') {
+                                          {isEditing ? (
+                                            <>
+                                              <input
+                                                type="text"
+                                                value={subtask.name}
+                                                autoFocus
+                                                onChange={e => {
                                                   const updated = [...task.subtasks];
-                                                  updated[index] = { ...subtask, editingName: false };
+                                                  updated[index] = { ...subtask, name: e.target.value };
                                                   handleTaskEdit(task.objectId, { subtasks: updated });
-                                                }
-                                              }}
-                                              style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', minWidth: '60px', marginRight: '4px'}}
-                                            />
-                                          ) : (
-                                            <span style={{flex: 1, wordBreak: 'break-all', whiteSpace: 'pre-line'}}>{subtask.name}</span>
-                                          )}
-                                          {isEditingDate ? (
-                                            <input
-                                              type="date"
-                                              value={subtask.date || task.deadline}
-                                              autoFocus
-                                              onChange={e => {
-                                                const updated = [...task.subtasks];
-                                                updated[index] = { ...subtask, date: e.target.value };
-                                                handleTaskEdit(task.objectId, { subtasks: updated });
-                                              }}
-                                              onBlur={() => {
-                                                const updated = [...task.subtasks];
-                                                updated[index] = { ...subtask, editingDate: false };
-                                                handleTaskEdit(task.objectId, { subtasks: updated });
-                                              }}
-                                              onKeyDown={e => {
-                                                if (e.key === 'Enter') {
+                                                }}
+                                                style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', minWidth: '60px', marginRight: '4px'}}
+                                              />
+                                              <input
+                                                type="date"
+                                                value={subtask.date || task.deadline}
+                                                onChange={e => {
                                                   const updated = [...task.subtasks];
-                                                  updated[index] = { ...subtask, editingDate: false };
+                                                  updated[index] = { ...subtask, date: e.target.value };
                                                   handleTaskEdit(task.objectId, { subtasks: updated });
-                                                }
-                                              }}
-                                              style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', marginLeft: '4px'}}
-                                            />
+                                                }}
+                                                style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', marginLeft: '4px'}}
+                                              />
+                                              <button
+                                                onClick={() => {
+                                                  const updated = [...task.subtasks];
+                                                  updated[index] = { ...subtask, editing: false };
+                                                  handleTaskEdit(task.objectId, { subtasks: updated });
+                                                }}
+                                                style={{background: '#aa96da', color: '#fff', border: 'none', borderRadius: '4px', padding: '2px 8px', marginLeft: '4px', fontSize: '11px', cursor: 'pointer'}}
+                                              >保存</button>
+                                            </>
                                           ) : (
-                                            <span
-                                              style={{color: '#6c757d', minWidth: '70px', cursor: 'pointer'}}
-                                              onClick={e => {
-                                                e.stopPropagation();
-                                                const updated = [...task.subtasks];
-                                                updated[index] = { ...subtask, editingDate: true };
-                                                handleTaskEdit(task.objectId, { subtasks: updated });
-                                              }}
-                                              tabIndex={0}
-                                            >
-                                              {subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
-                                            </span>
+                                            <>
+                                              <span style={{flex: 1, wordBreak: 'break-all', whiteSpace: 'pre-line'}}>{subtask.name}</span>
+                                              <span
+                                                style={{color: '#6c757d', minWidth: '70px', cursor: 'pointer'}}
+                                                onClick={e => {
+                                                  e.stopPropagation();
+                                                  const updated = [...task.subtasks];
+                                                  updated[index] = { ...subtask, editing: true };
+                                                  handleTaskEdit(task.objectId, { subtasks: updated });
+                                                }}
+                                                tabIndex={0}
+                                              >
+                                                {subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
+                                              </span>
+                                              <button
+                                                onClick={e => {
+                                                  e.stopPropagation();
+                                                  const updated = [...task.subtasks];
+                                                  updated[index] = { ...subtask, editing: true };
+                                                  handleTaskEdit(task.objectId, { subtasks: updated });
+                                                }}
+                                                style={{background: '#fff', border: '1px solid #aa96da', color: '#aa96da', borderRadius: '50%', width: '16px', height: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginRight: '4px', transition: 'background 0.2s, color 0.2s', fontSize: '8px'}}
+                                                aria-label="编辑子任务"
+                                                tabIndex={0}
+                                                onMouseOver={e => { e.currentTarget.style.background = '#aa96da'; e.currentTarget.style.color = '#fff'; }}
+                                                onMouseOut={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#aa96da'; }}
+                                              >
+                                                <span style={{fontSize: '8px'}}>✏️</span>
+                                              </button>
+                                            </>
                                           )}
-                                          <button
-                                            onClick={e => {
-                                              e.stopPropagation();
-                                              const updated = [...task.subtasks];
-                                              updated[index] = { ...subtask, editingName: true };
-                                              handleTaskEdit(task.objectId, { subtasks: updated });
-                                            }}
-                                            style={{background: '#fff', border: '1px solid #aa96da', color: '#aa96da', borderRadius: '50%', width: '16px', height: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginRight: '4px', transition: 'background 0.2s, color 0.2s', fontSize: '8px'}}
-                                            aria-label="编辑子任务"
-                                            tabIndex={0}
-                                            onMouseOver={e => { e.currentTarget.style.background = '#aa96da'; e.currentTarget.style.color = '#fff'; }}
-                                            onMouseOut={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#aa96da'; }}
-                                          >
-                                            <span style={{fontSize: '8px'}}>✏️</span>
-                                          </button>
                                           <button
                                             onClick={(e) => {
                                               e.stopPropagation();
