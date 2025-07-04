@@ -514,10 +514,12 @@ function App() {
                   </div>
                 </div>
               </div>
-              <div style={{flex: 1, minWidth: '300px'}}>
+              <div style={{flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                 {!showAllTasks ? (
-                  <div className="card" style={{padding: '16px'}}>
-                    <div className="oval-label-today" style={{marginBottom: '12px', fontSize: '18px', fontWeight: 600, color: '#2563eb', textAlign: 'center', background: '#e0e7ff', borderRadius: '20px', width: '180px', margin: '0 auto'}}>任务列表</div>
+                  <div className="card" style={{padding: '16px', width: '100%', maxWidth: '480px', margin: '0 auto'}}>
+                    <div style={{marginBottom: '18px', display: 'flex', justifyContent: 'center'}}>
+                      <span style={{display: 'inline-block', background: '#2563eb', color: 'white', borderRadius: '20px', padding: '6px 24px', fontSize: '18px', fontWeight: 600, letterSpacing: '1px', textAlign: 'center'}}>{selectedDate}</span>
+                    </div>
                     {(() => {
                       const dateTasks = tasks.filter(task => {
                         const dateStr = selectedDate;
@@ -530,15 +532,15 @@ function App() {
                         return <div className="text-gray-400 text-center py-8">该日期无任务</div>;
                       }
                       return dateTasks.map((task, idx) => (
-                        <div key={task.objectId} style={{marginBottom: '16px', fontSize: '14px', color: '#495057'}}>
+                        <div key={task.objectId} style={{marginBottom: '16px', fontSize: '15px', color: '#495057'}}>
                           <div style={{fontWeight: 500, marginBottom: '4px'}}>
-                            {['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][idx] || idx+1}. {task.title}
+                            {(idx+1) + '. ' + task.title}
                           </div>
                           {task.subtasks && task.subtasks.length > 0 && (
                             <div style={{marginLeft: '24px', marginTop: '2px'}}>
                               {task.subtasks.filter(subtask => typeof subtask === 'object' && subtask.date === selectedDate).map((subtask, sidx) => (
-                                <div key={sidx} style={{fontSize: '13px', color: '#6c757d', marginBottom: '2px'}}>
-                                  {['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][sidx] || sidx+1}. {subtask.name}
+                                <div key={sidx} style={{fontSize: '14px', color: '#2563eb', marginBottom: '2px'}}>
+                                  {['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][sidx] || (sidx+1)}. {subtask.name}
                                 </div>
                               ))}
                             </div>
