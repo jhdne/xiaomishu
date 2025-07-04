@@ -480,7 +480,7 @@ function App() {
 
           {activeTab === 'calendar' && (
             <div style={{display: 'flex', gap: '24px', alignItems: 'flex-start'}}>
-              <div style={{width: '36%', minWidth: '320px'}}>
+              <div style={{width: '36%', minWidth: '320px', maxWidth: '420px', flex: '0 0 36%'}}>
                 <div style={{position: 'relative'}}>
                   <Calendar
                     tasks={tasks}
@@ -514,11 +514,11 @@ function App() {
                   </div>
                 </div>
               </div>
-              <div style={{flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+              <div style={{flex: '0 0 64%', minWidth: '340px', maxWidth: '820px', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                 {!showAllTasks ? (
-                  <div className="card" style={{padding: '16px', width: '100%', maxWidth: '480px', margin: '0 auto'}}>
-                    <div style={{marginBottom: '18px', display: 'flex', justifyContent: 'center'}}>
-                      <span style={{display: 'inline-block', background: '#2563eb', color: 'white', borderRadius: '20px', padding: '6px 24px', fontSize: '18px', fontWeight: 600, letterSpacing: '1px', textAlign: 'center'}}>{selectedDate}</span>
+                  <div className="card" style={{padding: '24px 32px', width: '100%', maxWidth: '700px', margin: '0 auto', boxShadow: '0 2px 8px rgba(0,0,0,0.04)'}}>
+                    <div style={{marginBottom: '22px', display: 'flex', justifyContent: 'center'}}>
+                      <span style={{display: 'inline-block', background: '#2563eb', color: 'white', borderRadius: '20px', padding: '8px 32px', fontSize: '20px', fontWeight: 600, letterSpacing: '1px', textAlign: 'center'}}>{selectedDate}</span>
                     </div>
                     {(() => {
                       const dateTasks = tasks.filter(task => {
@@ -532,14 +532,14 @@ function App() {
                         return <div className="text-gray-400 text-center py-8">该日期无任务</div>;
                       }
                       return dateTasks.map((task, idx) => (
-                        <div key={task.objectId} style={{marginBottom: '16px', fontSize: '15px', color: '#495057'}}>
-                          <div style={{fontWeight: 500, marginBottom: '4px'}}>
+                        <div key={task.objectId} style={{marginBottom: '22px', fontSize: '16px', color: '#34495e', fontWeight: 500, lineHeight: 1.6, borderBottom: '1px solid #f0f0f0', paddingBottom: '10px'}}>
+                          <div style={{fontWeight: 600, fontSize: '16px', color: '#22223b', marginBottom: '6px', letterSpacing: '0.5px'}}>
                             {(idx+1) + '. ' + task.title}
                           </div>
                           {task.subtasks && task.subtasks.length > 0 && (
-                            <div style={{marginLeft: '24px', marginTop: '2px'}}>
+                            <div style={{marginLeft: '24px', marginTop: '2px', display: 'flex', flexDirection: 'column', gap: '4px'}}>
                               {task.subtasks.filter(subtask => typeof subtask === 'object' && subtask.date === selectedDate).map((subtask, sidx) => (
-                                <div key={sidx} style={{fontSize: '14px', color: '#2563eb', marginBottom: '2px'}}>
+                                <div key={sidx} style={{fontSize: '15px', color: '#2563eb', fontWeight: 500, letterSpacing: '0.5px'}}>
                                   {['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][sidx] || (sidx+1)}. {subtask.name}
                                 </div>
                               ))}
