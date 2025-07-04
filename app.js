@@ -338,10 +338,10 @@ function App() {
                                                 }
                                               }
                                             }}
-                                            style={{background: 'none', border: 'none', color: '#aa96da', cursor: 'pointer', padding: '2px', marginRight: '4px'}}
+                                            style={{background: '#ff6b6b', border: '2px solid #ff0000', color: 'white', cursor: 'pointer', padding: '4px 8px', marginRight: '4px', borderRadius: '4px', fontSize: '10px'}}
                                             aria-label="编辑子任务"
                                           >
-                                            <div className="icon-edit text-xs"></div>
+                                            编辑
                                           </button>
                                           <button
                                             onClick={(e) => {
