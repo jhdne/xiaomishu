@@ -238,31 +238,55 @@ function App() {
                           <div key={task.objectId} className="card" style={{padding: '12px', border: '1px solid #ffc107'}}>
                             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
                               <div style={{flex: 1}}>
-                                <h4 style={{fontSize: '14px', fontWeight: '500', margin: '0 0 4px 0', cursor: 'pointer'}}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const newTitle = prompt('编辑任务标题:', task.title);
-                                    if (newTitle && newTitle.trim()) {
-                                      handleTaskEdit(task.objectId, { title: newTitle.trim() });
-                                    }
-                                  }}
-                                >
+                                <h4 style={{fontSize: '14px', fontWeight: '500', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '4px'}}>
                                   <span className="oval-label-task" style={{marginRight: '8px'}}>{taskIndex + 1}</span>
-                                  {task.title}
+                                  {task.editingTitle ? (
+                                    <input
+                                      type="text"
+                                      value={task.title}
+                                      autoFocus
+                                      onChange={e => handleTaskEdit(task.objectId, { title: e.target.value })}
+                                      onBlur={() => handleTaskEdit(task.objectId, { editingTitle: false })}
+                                      onKeyDown={e => { if (e.key === 'Enter') handleTaskEdit(task.objectId, { editingTitle: false }); }}
+                                      style={{fontSize: '14px', fontWeight: '500', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', minWidth: '80px'}}
+                                    />
+                                  ) : (
+                                    <>
+                                      {task.title}
+                                      <button
+                                        onClick={e => { e.stopPropagation(); handleTaskEdit(task.objectId, { editingTitle: true }); }}
+                                        style={{background: 'none', border: 'none', color: '#aa96da', cursor: 'pointer', padding: '2px'}}
+                                        aria-label="编辑任务标题"
+                                      >
+                                        <div className="icon-edit text-xs"></div>
+                                      </button>
+                                    </>
+                                  )}
                                 </h4>
-                                <span style={{fontSize: '12px', color: '#6c757d'}}>
-                                  {task.category} • 截止: 
-                                  <span style={{cursor: 'pointer', textDecoration: 'underline'}}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const newDeadline = prompt('编辑截止日期(YYYY-MM-DD):', task.deadline);
-                                      if (newDeadline && newDeadline.trim()) {
-                                        handleTaskEdit(task.objectId, { deadline: newDeadline.trim() });
-                                      }
-                                    }}
-                                  >
-                                    {new Date(task.deadline).toLocaleDateString()}
-                                  </span>
+                                <span style={{fontSize: '12px', color: '#6c757d', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                                  {task.category} • 截止:
+                                  {task.editingDeadline ? (
+                                    <input
+                                      type="date"
+                                      value={task.deadline}
+                                      autoFocus
+                                      onChange={e => handleTaskEdit(task.objectId, { deadline: e.target.value })}
+                                      onBlur={() => handleTaskEdit(task.objectId, { editingDeadline: false })}
+                                      onKeyDown={e => { if (e.key === 'Enter') handleTaskEdit(task.objectId, { editingDeadline: false }); }}
+                                      style={{fontSize: '12px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px'}}
+                                    />
+                                  ) : (
+                                    <>
+                                      <span>{new Date(task.deadline).toLocaleDateString()}</span>
+                                      <button
+                                        onClick={e => { e.stopPropagation(); handleTaskEdit(task.objectId, { editingDeadline: true }); }}
+                                        style={{background: 'none', border: 'none', color: '#aa96da', cursor: 'pointer', padding: '2px'}}
+                                        aria-label="编辑截止时间"
+                                      >
+                                        <div className="icon-edit text-xs"></div>
+                                      </button>
+                                    </>
+                                  )}
                                 </span>
                                 {task.subtasks && task.subtasks.length > 0 && (
                                   <div style={{marginTop: '8px'}}>
@@ -282,18 +306,7 @@ function App() {
                                             handleTaskEdit(task.objectId, { subtasks: [...task.subtasks, newSubtask] });
                                           }
                                         }}
-                                        style={{
-                                          width: '26px',
-                                          height: '26px',
-                                          borderRadius: '50%',
-                                          background: '#00C8FF',
-                                          border: 'none',
-                                          color: 'white',
-                                          cursor: 'pointer',
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center'
-                                        }}
+                                        style={{width: '26px', height: '26px', borderRadius: '50%', background: '#00C8FF', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
                                       >
                                         <div className="icon-plus text-xs"></div>
                                       </button>
@@ -303,52 +316,65 @@ function App() {
                                       return (
                                         <div key={index} style={{fontSize: '11px', color: '#6c757d', marginLeft: '8px', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px'}}>
                                           <span style={{fontWeight: '500', color: '#495057'}}>{circledNumbers[index] || `⑩+${index-9}`}</span>
-                                          <span style={{flex: 1}}>
-                                            {typeof subtask === 'string' ? subtask : subtask.name}
-                                          </span>
-                                          <span style={{color: '#6c757d', minWidth: '70px'}}>
-                                            {typeof subtask === 'object' && subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
-                                          </span>
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              const currentSubtask = typeof subtask === 'string' ? subtask : subtask.name;
-                                              const currentDate = typeof subtask === 'object' && subtask.date ? subtask.date : task.deadline;
-                                              const newSubtaskName = prompt('编辑子任务内容:', currentSubtask);
-                                              if (newSubtaskName && newSubtaskName.trim()) {
-                                                const newDate = prompt('编辑执行日期(YYYY-MM-DD):', currentDate);
-                                                if (newDate && newDate.trim()) {
-                                                  const updatedSubtasks = [...task.subtasks];
-                                                  if (typeof updatedSubtasks[index] === 'string') {
-                                                    updatedSubtasks[index] = {
-                                                      name: newSubtaskName.trim(),
-                                                      date: newDate.trim(),
-                                                      completed: false,
-                                                      priority: index + 1,
-                                                      originalText: newSubtaskName.trim()
-                                                    };
-                                                  } else {
-                                                    updatedSubtasks[index] = {
-                                                      ...updatedSubtasks[index], 
-                                                      name: newSubtaskName.trim(),
-                                                      date: newDate.trim()
-                                                    };
+                                          {subtask.editing ? (
+                                            <>
+                                              <input
+                                                type="text"
+                                                value={subtask.name}
+                                                autoFocus
+                                                onChange={e => {
+                                                  const updated = [...task.subtasks];
+                                                  updated[index] = { ...subtask, name: e.target.value };
+                                                  handleTaskEdit(task.objectId, { subtasks: updated });
+                                                }}
+                                                onBlur={() => {
+                                                  const updated = [...task.subtasks];
+                                                  updated[index] = { ...subtask, editing: false };
+                                                  handleTaskEdit(task.objectId, { subtasks: updated });
+                                                }}
+                                                onKeyDown={e => {
+                                                  if (e.key === 'Enter') {
+                                                    const updated = [...task.subtasks];
+                                                    updated[index] = { ...subtask, editing: false };
+                                                    handleTaskEdit(task.objectId, { subtasks: updated });
                                                   }
-                                                  handleTaskEdit(task.objectId, { subtasks: updatedSubtasks });
-                                                }
-                                              }
-                                            }}
-                                            style={{background: '#ff6b6b', border: '2px solid #ff0000', color: 'white', cursor: 'pointer', padding: '4px 8px', marginRight: '4px', borderRadius: '4px', fontSize: '10px'}}
-                                            aria-label="编辑子任务"
-                                          >
-                                            编辑
-                                          </button>
+                                                }}
+                                                style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', minWidth: '60px'}}
+                                              />
+                                              <input
+                                                type="date"
+                                                value={subtask.date || task.deadline}
+                                                onChange={e => {
+                                                  const updated = [...task.subtasks];
+                                                  updated[index] = { ...subtask, date: e.target.value };
+                                                  handleTaskEdit(task.objectId, { subtasks: updated });
+                                                }}
+                                                style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', marginLeft: '4px'}}
+                                              />
+                                            </>
+                                          ) : (
+                                            <>
+                                              <span style={{flex: 1}}>{subtask.name}</span>
+                                              <span style={{color: '#6c757d', minWidth: '70px'}}>{subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}</span>
+                                              <button
+                                                onClick={e => {
+                                                  e.stopPropagation();
+                                                  const updated = [...task.subtasks];
+                                                  updated[index] = { ...subtask, editing: true };
+                                                  handleTaskEdit(task.objectId, { subtasks: updated });
+                                                }}
+                                                style={{background: 'none', border: 'none', color: '#aa96da', cursor: 'pointer', padding: '2px', marginRight: '4px'}}
+                                                aria-label="编辑子任务"
+                                              >
+                                                <div className="icon-edit text-xs"></div>
+                                              </button>
+                                            </>
+                                          )}
                                           <button
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               const updatedSubtasks = task.subtasks.filter((_, i) => i !== index);
                                               if (updatedSubtasks.length === 0) {
-                                                // 如果所有子任务都被删除，删除整个任务
                                                 handleTaskDelete(task.objectId);
                                               } else {
                                                 handleTaskEdit(task.objectId, { subtasks: updatedSubtasks });
