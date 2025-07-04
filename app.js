@@ -550,15 +550,8 @@ function App() {
                     })()}
                   </div>
                 ) : (
-                  <div className={`card task-panel ${showAllTasks ? 'visible' : 'hidden'}`}>
-                    <div className="oval-label-all-tasks" style={{marginBottom: '16px'}}>所有任务</div>
-                    <div style={{display: 'flex', alignItems: 'center', fontSize: '12px', borderBottom: '1px solid #e9ecef', padding: '8px 12px', textAlign: 'center'}}>
-                      <span style={{width: '40px', textAlign: 'center'}}>序号</span>
-                      <span style={{width: '60px', textAlign: 'center'}}>类型</span>
-                      <span style={{flex: 1, textAlign: 'center'}}>任务</span>
-                      <span style={{width: '110px', textAlign: 'center'}}>截止时间</span>
-                      <span style={{width: '80px', textAlign: 'center'}}>状态</span>
-                    </div>
+                  <div className="card task-panel" style={{padding: '24px 32px', width: '100%', maxWidth: '700px', margin: '0 auto', boxShadow: '0 2px 8px rgba(0,0,0,0.04)'}}>
+                    <div className="oval-label-all-tasks" style={{marginBottom: '22px', display: 'flex', justifyContent: 'center', fontSize: '20px', fontWeight: 600, color: '#2563eb', background: '#e0e7ff', borderRadius: '20px', padding: '8px 32px', letterSpacing: '1px', textAlign: 'center'}}>所有任务</div>
                     <div style={{maxHeight: '500px', overflow: 'auto'}}>
                       {['工作', '学习', '生活', '健康', '其他'].map(category => {
                         const categoryTasks = tasks.filter(task => task.category === category).sort((a, b) => {
@@ -568,88 +561,28 @@ function App() {
                           return timeA - timeB;
                         });
                         if (categoryTasks.length === 0) return null;
-                        
                         const inProgressTasks = categoryTasks.filter(task => task.status !== '已完成').sort((a, b) => new Date(a.deadline || a.createdAt) - new Date(b.deadline || b.createdAt));
                         const completedTasks = categoryTasks.filter(task => task.status === '已完成').sort((a, b) => new Date(a.deadline || a.createdAt) - new Date(b.deadline || b.createdAt));
                         const allCategoryTasks = [...inProgressTasks, ...completedTasks];
-                        
                         return (
                           <div key={category} style={{marginBottom: '20px'}}>
-                            <div className="oval-label-category" style={{marginBottom: '8px'}}>
-                              {category}
-                            </div>
-                            <div style={{display: 'flex', flexDirection: 'column', gap: '6px'}}>
+                            <div className="oval-label-category" style={{marginBottom: '8px'}}>{category}</div>
+                            <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
                               {allCategoryTasks.map((task, index) => (
-                                <React.Fragment key={task.objectId}>
-                                  <div 
-                                    style={{
-                                      padding: '8px 12px',
-                                      border: '1px solid #e9ecef',
-                                      borderRadius: '4px',
-                                      fontSize: '12px',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: '8px',
-                                      cursor: 'pointer',
-                                      transition: 'all 200ms ease'
-                                    }}
-                                    onClick={() => {
-                                      const isExpanded = task.showDetails;
-                                      handleTaskEdit(task.objectId, { showDetails: !isExpanded });
-                                    }}
-                                    onMouseOver={(e) => {
-                                      e.target.style.backgroundColor = '#f8f9fa';
-                                    }}
-                                    onMouseOut={(e) => {
-                                      e.target.style.backgroundColor = 'white';
-                                    }}
-                                  >
-                                    <span style={{color: '#6c757d', minWidth: '20px'}}>{index + 1}</span>
-                                    <span style={{color: '#6c757d'}}>|</span>
-                                    <span style={{color: '#495057', minWidth: '40px'}}>{task.category}</span>
-                                    <span style={{color: '#6c757d'}}>|</span>
-                                    <span style={{flex: 1, color: '#212529', fontWeight: '500'}}>{task.title}</span>
-                                    <span style={{color: '#6c757d'}}>|</span>
-                                    <span style={{color: '#6c757d', minWidth: '80px'}}>{new Date(task.deadline).toLocaleDateString()}</span>
-                                    <span style={{color: '#6c757d'}}>|</span>
-                                    <span style={{
-                                      fontSize: '10px',
-                                      padding: '2px 6px',
-                                      borderRadius: '10px',
-                                      color: 'white',
-                                      background: task.status === '待分配' ? '#FFC82C' : task.status === '已完成' ? '#22C55E' : '#00C8FF'
-                                    }}>
-                                      {task.status === '待分配' ? '待安排' : task.status === '已完成' ? '已完成' : '进行中'}
-                                    </span>
+                                <div key={task.objectId} style={{padding: '12px', border: '1px solid #e9ecef', borderRadius: '4px', fontSize: '16px', color: '#34495e', fontWeight: 500, lineHeight: 1.6, background: '#fff'}}>
+                                  <div style={{fontWeight: 600, fontSize: '16px', color: '#22223b', marginBottom: '6px', letterSpacing: '0.5px'}}>
+                                    {(index+1) + '. ' + task.title}
                                   </div>
-                                  {task.showDetails && (
-                                    <div style={{
-                                      marginTop: '8px',
-                                      padding: '12px',
-                                      border: '1px solid #e9ecef',
-                                      borderRadius: '4px',
-                                      backgroundColor: '#f8f9fa',
-                                      fontSize: '12px'
-                                    }}>
-                                      <p style={{margin: '0 0 8px 0', color: '#495057'}}><strong>描述：</strong>{task.description}</p>
-                                      {task.subtasks && task.subtasks.length > 0 && (
-                                        <div>
-                                          <p style={{margin: '0 0 4px 0', color: '#495057'}}><strong>子任务：</strong></p>
-                                          {task.subtasks.map((subtask, idx) => (
-                                            <div key={idx} style={{marginLeft: '16px', color: '#6c757d', marginBottom: '2px'}}>
-                                              • {typeof subtask === 'string' ? subtask : subtask.name}
-                                              {typeof subtask === 'object' && subtask.date && (
-                                                <span style={{color: '#007bff', marginLeft: '8px'}}>
-                                                  ({new Date(subtask.date).toLocaleDateString()})
-                                                </span>
-                                              )}
-                                            </div>
-                                          ))}
+                                  {task.subtasks && task.subtasks.length > 0 && (
+                                    <div style={{marginLeft: '24px', marginTop: '2px', display: 'flex', flexDirection: 'column', gap: '4px'}}>
+                                      {task.subtasks.map((subtask, sidx) => (
+                                        <div key={sidx} style={{fontSize: '15px', color: '#2563eb', fontWeight: 500, letterSpacing: '0.5px'}}>
+                                          {['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][sidx] || (sidx+1)}. {typeof subtask === 'object' ? subtask.name : subtask}
                                         </div>
-                                      )}
+                                      ))}
                                     </div>
                                   )}
-                                </React.Fragment>
+                                </div>
                               ))}
                             </div>
                           </div>
