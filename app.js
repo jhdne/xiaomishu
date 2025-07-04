@@ -252,7 +252,7 @@ function App() {
                                     />
                                   ) : (
                                     <>
-                                      {task.title}
+                                  {task.title}
                                       <button
                                         onClick={e => { e.stopPropagation(); handleTaskEdit(task.objectId, { editingTitle: true }); }}
                                         style={{background: 'none', border: 'none', color: '#aa96da', cursor: 'pointer', padding: '2px'}}
@@ -264,7 +264,7 @@ function App() {
                                   )}
                                 </h4>
                                 <span style={{fontSize: '12px', color: '#6c757d', display: 'flex', alignItems: 'center', gap: '4px'}}>
-                                  {task.category} • 截止:
+                                  {task.category} • 截止: 
                                   {task.editingDeadline ? (
                                     <input
                                       type="date"
@@ -368,13 +368,13 @@ function App() {
                                                   updated[index] = { ...subtask, editing: true };
                                                   handleTaskEdit(task.objectId, { subtasks: updated });
                                                 }}
-                                                style={{background: 'none', border: 'none', color: '#aa96da', cursor: 'pointer', padding: '2px', marginRight: '4px', display: 'inline-flex', alignItems: 'center'}}
+                                                style={{background: '#fff', border: '1px solid #aa96da', color: '#aa96da', borderRadius: '50%', width: '28px', height: '28px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginRight: '4px', transition: 'background 0.2s, color 0.2s'}}
                                                 aria-label="编辑子任务"
                                                 tabIndex={0}
-                                                onMouseOver={e => e.currentTarget.style.color = '#4a90e2'}
-                                                onMouseOut={e => e.currentTarget.style.color = '#aa96da'}
+                                                onMouseOver={e => { e.currentTarget.style.background = '#aa96da'; e.currentTarget.style.color = '#fff'; }}
+                                                onMouseOut={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#aa96da'; }}
                                               >
-                                                <div className="icon-edit text-xs"></div>
+                                                <span style={{fontSize: '16px'}}>✏️</span>
                                               </button>
                                             </>
                                           )}
