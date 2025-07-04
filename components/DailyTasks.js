@@ -74,7 +74,7 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate }) {
         <div className="text-center mb-6">
           <div className="oval-label-today" style={{marginBottom: '12px', minWidth: '115px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', padding: '5px 10px'}}>
             <span className="icon-calendar text-base mr-1" style={{color: '#aa96da'}}></span>
-            {formatDate(selectedDate || new Date().toISOString().split('T')[0])}
+            今天任务
           </div>
           <div className="text-sm text-gray-500 mt-2">
             {todayTasks.length - pendingTasks.length} 已完成 / {todayTasks.length} 总计
@@ -96,6 +96,7 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate }) {
                 onTaskUpdate={onTaskUpdate}
                 allTasks={tasks}
                 selectedDate={selectedDate}
+                editable={false}
               />
               <DailyTaskModule
                 title="学习"
@@ -104,6 +105,7 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate }) {
                 onTaskUpdate={onTaskUpdate}
                 allTasks={tasks}
                 selectedDate={selectedDate}
+                editable={false}
               />
               <DailyTaskModule
                 title="生活"
@@ -112,6 +114,7 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate }) {
                 onTaskUpdate={onTaskUpdate}
                 allTasks={tasks}
                 selectedDate={selectedDate}
+                editable={false}
               />
               <DailyTaskModule
                 title="健康"
@@ -120,6 +123,7 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate }) {
                 onTaskUpdate={onTaskUpdate}
                 allTasks={tasks}
                 selectedDate={selectedDate}
+                editable={false}
               />
               <DailyTaskModule
                 title="其他"
@@ -128,6 +132,7 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate }) {
                 onTaskUpdate={onTaskUpdate}
                 allTasks={tasks}
                 selectedDate={selectedDate}
+                editable={false}
               />
             </div>
 

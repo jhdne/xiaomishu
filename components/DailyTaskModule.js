@@ -1,4 +1,4 @@
-function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks, selectedDate }) {
+function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks, selectedDate, editable }) {
   try {
     if (tasks.length === 0) return null;
 
@@ -106,83 +106,28 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks, selectedD
                       <div className="text-xs text-gray-600 space-y-1">
                         {getFilteredSubtasks(task).map((subtask, subtaskIndex) => {
                           const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
+                          const isCompleted = typeof subtask === 'object' ? subtask.completed : false;
                           return (
-                            <div key={subtaskIndex} className="subtask-item" style={{marginLeft: '20px', marginBottom: '8px', padding: '8px', backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
-                              <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                                <div style={{flex: 1}}>
-                                  <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
-                                    <span style={{fontSize: '12px', color: '#6c757d', marginRight: '8px'}}>•</span>
-                                    <span style={{fontSize: '13px', color: '#495057'}}>
-                                      {typeof subtask === 'object' ? subtask.name : subtask}
-                                    </span>
-                                    <button
-                                      onClick={() => handleEditSubtask(task.objectId, subtaskIndex)}
-                                      className="edit-subtask-btn"
-                                      style={{
-                                        marginLeft: '8px',
-                                        width: '20px',
-                                        height: '20px',
-                                        borderRadius: '50%',
-                                        border: 'none',
-                                        backgroundColor: '#f8f9fa',
-                                        color: '#6c757d',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '10px',
-                                        transition: 'all 0.2s ease'
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        e.target.style.backgroundColor = '#e9ecef';
-                                        e.target.style.color = '#495057';
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.target.style.backgroundColor = '#f8f9fa';
-                                        e.target.style.color = '#6c757d';
-                                      }}
-                                    >
-                                      ✏️
-                                    </button>
-                                  </div>
-                                  {typeof subtask === 'object' && subtask.date && (
-                                    <div style={{display: 'flex', alignItems: 'center', marginLeft: '20px'}}>
-                                      <span style={{fontSize: '11px', color: '#6c757d', marginRight: '4px'}}>截止时间:</span>
-                                      <span style={{fontSize: '11px', color: '#495057', marginRight: '8px'}}>
-                                        {subtask.date}
-                                      </span>
-                                      <button
-                                        onClick={() => handleEditSubtaskTime(task.objectId, subtaskIndex)}
-                                        className="edit-subtask-time-btn"
-                                        style={{
-                                          width: '16px',
-                                          height: '16px',
-                                          borderRadius: '50%',
-                                          border: 'none',
-                                          backgroundColor: '#f8f9fa',
-                                          color: '#6c757d',
-                                          cursor: 'pointer',
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          fontSize: '8px',
-                                          transition: 'all 0.2s ease'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                          e.target.style.backgroundColor = '#e9ecef';
-                                          e.target.style.color = '#495057';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                          e.target.style.backgroundColor = '#f8f9fa';
-                                          e.target.style.color = '#6c757d';
-                                        }}
-                                      >
-                                        ✏️
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
+                            <div key={subtaskIndex} className="subtask-item" style={{marginLeft: '20px', marginBottom: '8px', padding: '8px', backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef', display: 'flex', alignItems: 'center', cursor: 'pointer'}} onClick={() => !editable && handleSubtaskToggle(task.objectId, subtaskIndex)}>
+                              <span style={{fontSize: '16px', marginRight: '8px'}}>{isCompleted ? '✔️' : '□'}</span>
+                              <span style={{fontSize: '13px', color: isCompleted ? '#bbb' : '#495057', textDecoration: isCompleted ? 'line-through' : 'none'}}>
+                                {circledNumbers[subtaskIndex] || `⑩+${subtaskIndex-9}`}. {typeof subtask === 'object' ? subtask.name : subtask}
+                              </span>
+                              {editable && (
+                                <>
+                                  <button
+                                    onClick={e => { e.stopPropagation(); handleEditSubtask(task.objectId, subtaskIndex); }}
+                                    className="edit-subtask-btn"
+                                    style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', transition: 'all 0.2s ease'}}
+                                    onMouseEnter={e => { e.target.style.backgroundColor = '#e9ecef'; e.target.style.color = '#495057'; }}
+                                    onMouseLeave={e => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = '#6c757d'; }}
+                                  >✏️</button>
+                                  <button
+                                    onClick={e => { e.stopPropagation(); handleDeleteSubtask(task.objectId, subtaskIndex); }}
+                                    style={{marginLeft: '4px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#dc3545', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px'}}
+                                  >×</button>
+                                </>
+                              )}
                             </div>
                           );
                         })}

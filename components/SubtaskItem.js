@@ -1,4 +1,4 @@
-function SubtaskItem({ subtask, index, taskId, onEdit, task }) {
+function SubtaskItem({ subtask, index, taskId, onEdit, task, editable }) {
   try {
     const [isEditing, setIsEditing] = React.useState(false);
     const [editData, setEditData] = React.useState({
@@ -75,21 +75,23 @@ function SubtaskItem({ subtask, index, taskId, onEdit, task }) {
                 <div className={`icon-${subtask.completed ? 'check-circle' : 'circle'} text-sm ${subtask.completed ? 'text-green-600' : 'text-gray-400'}`}></div>
               </button>
               <span className="text-xs text-gray-500 mr-2">{index + 1}.</span>
-              <span className={`flex-1 ${subtask.completed ? 'line-through text-gray-500' : 'text-gray-700'}`} style={{"paddingTop":"0px","paddingRight":"0px","paddingBottom":"0px","paddingLeft":"0px","marginTop":"0px","marginRight":"0px","marginBottom":"0px","marginLeft":"0px","fontSize":"12px","color":"rgb(55, 65, 81)","backgroundColor":"rgba(0, 0, 0, 0)","textAlign":"left","fontWeight":"400","display":"block","position":"static","width":"401.83px","height":"20px","top":"auto","left":"auto","right":"auto","bottom":"auto"}}>
+              <span className={`flex-1 ${subtask.completed ? 'line-through text-gray-500' : 'text-gray-700'}`} style={{fontSize:'12px', color:'#374151', textAlign:'left', fontWeight:400, display:'block'}}>
                 {typeof subtask === 'string' ? subtask : subtask.name}
               </span>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="text-xs text-gray-500">
-                {subtask.date && <span>{new Date(subtask.date).toLocaleDateString()}</span>}
+            {editable && (
+              <div className="flex items-center space-x-2">
+                <div className="text-xs text-gray-500">
+                  {subtask.date && <span>{new Date(subtask.date).toLocaleDateString()}</span>}
+                </div>
+                <button onClick={() => setIsEditing(true)} style={{color: '#FFC107', borderRadius: '50%', width: '20px', height: '20px', background: '#f8f9fa', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} className="hover:opacity-80">
+                  ✏️
+                </button>
+                <button onClick={handleDelete} className="text-red-600 hover:text-red-800" style={{borderRadius: '50%', width: '20px', height: '20px', background: '#f8f9fa', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px'}}>
+                  ×
+                </button>
               </div>
-              <button onClick={() => setIsEditing(true)} style={{color: '#FFC107'}} className="hover:opacity-80">
-                <div className="icon-edit-2 text-xs"></div>
-              </button>
-              <button onClick={handleDelete} className="text-red-600 hover:text-red-800">
-                <div className="icon-trash text-xs"></div>
-              </button>
-            </div>
+            )}
           </div>
         )}
       </div>

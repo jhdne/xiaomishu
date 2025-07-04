@@ -520,11 +520,37 @@ function App() {
               </div>
               <div style={{flex: 1, minWidth: '300px'}}>
                 {!showAllTasks ? (
-                  <DailyTasks
-                    selectedDate={selectedDate}
-                    tasks={tasks}
-                    onTaskUpdate={handleTaskEdit}
-                  />
+                  <div className="card" style={{padding: '16px'}}>
+                    <div className="oval-label-today" style={{marginBottom: '12px', fontSize: '16px', fontWeight: 600}}>任务列表</div>
+                    {(() => {
+                      const dateTasks = tasks.filter(task => {
+                        const dateStr = selectedDate;
+                        if (task.scheduledDate === dateStr) return true;
+                        if (task.subtasks && task.subtasks.some(subtask => typeof subtask === 'object' && subtask.date === dateStr)) return true;
+                        if (task.deadline === dateStr) return true;
+                        return false;
+                      });
+                      if (dateTasks.length === 0) {
+                        return <div className="text-gray-400 text-center py-8">该日期无任务</div>;
+                      }
+                      return dateTasks.map((task, idx) => (
+                        <div key={task.objectId} style={{marginBottom: '16px', fontSize: '14px', color: '#495057'}}>
+                          <div style={{fontWeight: 500, marginBottom: '4px'}}>
+                            {['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][idx] || idx+1}. {task.title} - {task.deadline || task.scheduledDate || selectedDate}
+                          </div>
+                          {task.subtasks && task.subtasks.length > 0 && (
+                            <div style={{marginLeft: '24px', marginTop: '2px'}}>
+                              {task.subtasks.filter(subtask => typeof subtask === 'object' && subtask.date === selectedDate).map((subtask, sidx) => (
+                                <div key={sidx} style={{fontSize: '13px', color: '#6c757d', marginBottom: '2px'}}>
+                                  {['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][sidx] || sidx+1}. {subtask.name} - {subtask.date}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ));
+                    })()}
+                  </div>
                 ) : (
                   <div className={`card task-panel ${showAllTasks ? 'visible' : 'hidden'}`}>
                     <div className="oval-label-all-tasks" style={{marginBottom: '16px'}}>所有任务</div>

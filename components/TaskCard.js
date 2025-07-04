@@ -1,4 +1,4 @@
-function TaskCard({ task, onEdit, onDelete, onStatusChange }) {
+function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
   try {
     const getCategoryColor = (category) => {
       const colors = {
@@ -14,7 +14,9 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange }) {
     return (
       <div className="card" data-name="taskCard" data-file="components/TaskCard.js" style={{borderLeft: `4px solid var(--brand-color)`}}>
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px'}}>
-          <h3 style={{fontSize: '14px', fontWeight: '500', margin: 0}}>{task.title}</h3>
+          <h3 style={{fontSize: '14px', fontWeight: '500', margin: 0}}>{task.title}
+            <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
+          </h3>
           <button 
             onClick={() => onDelete(task.objectId)} 
             style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px'}}
@@ -73,6 +75,7 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange }) {
                   taskId={task.objectId}
                   onEdit={onEdit}
                   task={task}
+                  editable={editable}
                 />
               ))}
             </div>
