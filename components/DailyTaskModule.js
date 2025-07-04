@@ -1,4 +1,4 @@
-function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks }) {
+function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks, selectedDate }) {
   try {
     if (tasks.length === 0) return null;
 
@@ -17,6 +17,70 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks }) {
       };
       
       await onTaskUpdate(taskId, { subtasks: updatedSubtasks });
+    };
+
+    const handleEditSubtask = async (taskId, subtaskIndex) => {
+      const task = allTasks.find(t => t.objectId === taskId);
+      if (!task || !task.subtasks) return;
+      
+      const subtask = task.subtasks[subtaskIndex];
+      const currentName = typeof subtask === 'object' ? subtask.name : subtask;
+      const newName = prompt('编辑子任务内容:', currentName);
+      
+      if (newName && newName.trim()) {
+        const updatedSubtasks = [...task.subtasks];
+        if (typeof updatedSubtasks[subtaskIndex] === 'string') {
+          updatedSubtasks[subtaskIndex] = {
+            name: newName.trim(),
+            date: selectedDate,
+            completed: false,
+            priority: subtaskIndex + 1,
+            originalText: newName.trim()
+          };
+        } else {
+          updatedSubtasks[subtaskIndex] = {
+            ...updatedSubtasks[subtaskIndex],
+            name: newName.trim()
+          };
+        }
+        await onTaskUpdate(taskId, { subtasks: updatedSubtasks });
+      }
+    };
+
+    const handleEditSubtaskTime = async (taskId, subtaskIndex) => {
+      const task = allTasks.find(t => t.objectId === taskId);
+      if (!task || !task.subtasks) return;
+      
+      const subtask = task.subtasks[subtaskIndex];
+      const currentDate = typeof subtask === 'object' && subtask.date ? subtask.date : selectedDate;
+      const newDate = prompt('编辑执行日期(YYYY-MM-DD):', currentDate);
+      
+      if (newDate && newDate.trim()) {
+        const updatedSubtasks = [...task.subtasks];
+        if (typeof updatedSubtasks[subtaskIndex] === 'string') {
+          updatedSubtasks[subtaskIndex] = {
+            name: updatedSubtasks[subtaskIndex],
+            date: newDate.trim(),
+            completed: false,
+            priority: subtaskIndex + 1,
+            originalText: updatedSubtasks[subtaskIndex]
+          };
+        } else {
+          updatedSubtasks[subtaskIndex] = {
+            ...updatedSubtasks[subtaskIndex],
+            date: newDate.trim()
+          };
+        }
+        await onTaskUpdate(taskId, { subtasks: updatedSubtasks });
+      }
+    };
+
+    const getFilteredSubtasks = (task) => {
+      if (!task.subtasks || !selectedDate) return [];
+      return task.subtasks.filter(subtask => {
+        const subtaskDate = typeof subtask === 'object' && subtask.date ? subtask.date : null;
+        return subtaskDate === selectedDate;
+      });
     };
 
     return (
@@ -40,55 +104,85 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks }) {
                   {task.subtasks && task.subtasks.length > 0 && (
                     <div className="mt-2">
                       <div className="text-xs text-gray-600 space-y-1">
-                        {task.subtasks.map((subtask, subtaskIndex) => {
+                        {getFilteredSubtasks(task).map((subtask, subtaskIndex) => {
                           const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
                           return (
-                            <div key={subtaskIndex} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                              <div className="flex items-center">
-                                <button 
-                                  onClick={() => handleSubtaskToggle(task.objectId, subtaskIndex)}
-                                  className="mr-2"
-                                >
-                                  <div className={`icon-${subtask.completed ? 'check-circle' : 'circle'} text-sm ${subtask.completed ? 'text-green-600' : 'text-gray-400'}`}></div>
-                                </button>
-                                <span className="text-xs text-gray-500 mr-2">{circledNumbers[subtaskIndex] || `⑩+${subtaskIndex-9}`}</span>
-                                <span className={subtask.completed ? 'line-through text-gray-400' : ''}>
-                                  {typeof subtask === 'string' ? subtask : subtask.name}
-                                </span>
+                            <div key={subtaskIndex} className="subtask-item" style={{marginLeft: '20px', marginBottom: '8px', padding: '8px', backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
+                              <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                                <div style={{flex: 1}}>
+                                  <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
+                                    <span style={{fontSize: '12px', color: '#6c757d', marginRight: '8px'}}>•</span>
+                                    <span style={{fontSize: '13px', color: '#495057'}}>
+                                      {typeof subtask === 'object' ? subtask.name : subtask}
+                                    </span>
+                                    <button
+                                      onClick={() => handleEditSubtask(task.objectId, subtaskIndex)}
+                                      className="edit-subtask-btn"
+                                      style={{
+                                        marginLeft: '8px',
+                                        width: '20px',
+                                        height: '20px',
+                                        borderRadius: '50%',
+                                        border: 'none',
+                                        backgroundColor: '#f8f9fa',
+                                        color: '#6c757d',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '10px',
+                                        transition: 'all 0.2s ease'
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.target.style.backgroundColor = '#e9ecef';
+                                        e.target.style.color = '#495057';
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.target.style.backgroundColor = '#f8f9fa';
+                                        e.target.style.color = '#6c757d';
+                                      }}
+                                    >
+                                      ✏️
+                                    </button>
+                                  </div>
+                                  {typeof subtask === 'object' && subtask.date && (
+                                    <div style={{display: 'flex', alignItems: 'center', marginLeft: '20px'}}>
+                                      <span style={{fontSize: '11px', color: '#6c757d', marginRight: '4px'}}>截止时间:</span>
+                                      <span style={{fontSize: '11px', color: '#495057', marginRight: '8px'}}>
+                                        {subtask.date}
+                                      </span>
+                                      <button
+                                        onClick={() => handleEditSubtaskTime(task.objectId, subtaskIndex)}
+                                        className="edit-subtask-time-btn"
+                                        style={{
+                                          width: '16px',
+                                          height: '16px',
+                                          borderRadius: '50%',
+                                          border: 'none',
+                                          backgroundColor: '#f8f9fa',
+                                          color: '#6c757d',
+                                          cursor: 'pointer',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          fontSize: '8px',
+                                          transition: 'all 0.2s ease'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          e.target.style.backgroundColor = '#e9ecef';
+                                          e.target.style.color = '#495057';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.target.style.backgroundColor = '#f8f9fa';
+                                          e.target.style.color = '#6c757d';
+                                        }}
+                                      >
+                                        ✏️
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const currentSubtask = typeof subtask === 'string' ? subtask : subtask.name;
-                                  const currentDate = typeof subtask === 'object' && subtask.date ? subtask.date : task.deadline;
-                                  const newSubtaskName = prompt('编辑子任务内容:', currentSubtask);
-                                  if (newSubtaskName && newSubtaskName.trim()) {
-                                    const newDate = prompt('编辑执行日期(YYYY-MM-DD):', currentDate);
-                                    if (newDate && newDate.trim()) {
-                                      const updatedSubtasks = [...task.subtasks];
-                                      if (typeof updatedSubtasks[subtaskIndex] === 'string') {
-                                        updatedSubtasks[subtaskIndex] = {
-                                          name: newSubtaskName.trim(),
-                                          date: newDate.trim(),
-                                          completed: false,
-                                          priority: subtaskIndex + 1,
-                                          originalText: newSubtaskName.trim()
-                                        };
-                                      } else {
-                                        updatedSubtasks[subtaskIndex] = {
-                                          ...updatedSubtasks[subtaskIndex], 
-                                          name: newSubtaskName.trim(),
-                                          date: newDate.trim()
-                                        };
-                                      }
-                                      onTaskUpdate(task.objectId, { subtasks: updatedSubtasks });
-                                    }
-                                  }
-                                }}
-                                style={{background: 'none', border: 'none', color: '#aa96da', cursor: 'pointer', padding: '2px'}}
-                              >
-                                <div className="icon-edit text-xs"></div>
-                              </button>
                             </div>
                           );
                         })}

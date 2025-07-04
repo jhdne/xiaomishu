@@ -46,25 +46,25 @@ function formatLocalDate(date) {
 // localStorage持久化工具
 function saveTasksToStorage(tasks) {
   try {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-    console.log('任务数据已保存到localStorage');
+    localStorage.setItem('taskManager_tasks', JSON.stringify(tasks));
+    console.log('任务数据已保存到localStorage:', tasks.length, '个任务');
   } catch (error) {
     console.error('保存任务数据失败:', error);
   }
 }
+
 function loadTasksFromStorage() {
   try {
-    const data = localStorage.getItem('tasks');
-    if (data) {
-      const tasks = JSON.parse(data);
-      console.log('从localStorage恢复任务数据:', tasks.length, '个任务');
-      return tasks;
+    const savedTasks = localStorage.getItem('taskManager_tasks');
+    if (savedTasks) {
+      const parsedTasks = JSON.parse(savedTasks);
+      console.log('从localStorage恢复任务数据:', parsedTasks.length, '个任务');
+      return parsedTasks;
     }
-    return null;
   } catch (error) {
     console.error('加载任务数据失败:', error);
-    return null;
   }
+  return [];
 }
 
 function App() {
@@ -76,7 +76,10 @@ function App() {
     const [showAllTasks, setShowAllTasks] = React.useState(false);
 
     React.useEffect(() => {
-      loadTasks();
+      const savedTasks = loadTasksFromStorage();
+      if (savedTasks.length > 0) {
+        setTasks(savedTasks);
+      }
     }, []);
 
     const loadTasks = async () => {
@@ -99,13 +102,18 @@ function App() {
     const handleTaskCreate = async (taskData) => {
       setIsProcessing(true);
       try {
-        if (taskData.useAI) {
-          const newTask = await trickleCreateObject('task', {
-            ...taskData,
-            status: '已分配',
-            createdAt: formatLocalDate(new Date())
-          });
+        console.log('开始创建任务:', taskData);
+        
+        let newTask = {
+          id: Date.now().toString(),
+          objectId: Date.now().toString(),
+          ...taskData,
+          createdAt: formatLocalDate(new Date()),
+          status: '待分配',
+          completed: false
+        };
 
+        if (taskData.useAI) {
           const decomposition = await aiAgent.decomposeTask(taskData);
           console.log('AI拆解结果 decomposition:', decomposition);
           const schedule = await aiAgent.scheduleTask(taskData, decomposition);
@@ -134,55 +142,65 @@ function App() {
           });
           console.log('最终用于存储的 processedSubtasks:', processedSubtasks);
           
-          await trickleUpdateObject('task', newTask.objectId, {
-            ...taskData,
+          newTask = {
+            ...newTask,
             status: '已分配',
             subtasks: processedSubtasks,
             taskType: decomposition.type || '一次性任务',
             complexity: decomposition.complexity || '简单',
             scheduledDate: processedSubtasks[0]?.date || taskData.deadline
-          });
-        } else {
-          await trickleCreateObject('task', {
-            ...taskData,
-            status: '已分配',
-            createdAt: formatLocalDate(new Date())
-          });
+          };
         }
-
-        await loadTasks();
+        
+        console.log('创建的任务对象:', newTask);
+        const updatedTasks = [...tasks, newTask];
+        setTasks(updatedTasks);
+        saveTasksToStorage(updatedTasks);
+        
+        console.log('任务创建成功，当前任务总数:', updatedTasks.length);
+        setIsProcessing(false);
+        return newTask;
       } catch (error) {
         console.error('创建任务失败:', error);
-        alert('创建任务失败，请重试');
-      } finally {
         setIsProcessing(false);
+        throw error;
       }
     };
 
     const handleTaskEdit = async (taskId, updatedData) => {
       try {
-        await trickleUpdateObject('task', taskId, updatedData);
-        await loadTasks();
+        const updatedTasks = tasks.map(task => 
+          task.id === taskId || task.objectId === taskId ? { ...task, ...updatedData } : task
+        );
+        setTasks(updatedTasks);
+        saveTasksToStorage(updatedTasks);
+        console.log('任务更新成功:', taskId, updatedData);
       } catch (error) {
-        console.error('更新任务失败:', error);
+        console.error('任务更新失败:', error);
       }
     };
 
     const handleTaskDelete = async (taskId) => {
       try {
-        await trickleDeleteObject('task', taskId);
-        await loadTasks();
+        const updatedTasks = tasks.filter(task => task.id !== taskId && task.objectId !== taskId);
+        setTasks(updatedTasks);
+        saveTasksToStorage(updatedTasks);
+        console.log('任务删除成功:', taskId);
       } catch (error) {
-        console.error('删除任务失败:', error);
+        console.error('任务删除失败:', error);
       }
     };
 
     const handleStatusChange = async (taskId, newStatus) => {
       try {
-        await trickleUpdateObject('task', taskId, { status: newStatus });
-        await loadTasks();
+        const updatedTasks = tasks.map(task => 
+          task.id === taskId || task.objectId === taskId ? { ...task, status: newStatus } : task
+        );
+        setTasks(updatedTasks);
+        saveTasksToStorage(updatedTasks);
+        console.log('状态更新成功:', taskId, newStatus);
       } catch (error) {
-        console.error('更新状态失败:', error);
+        console.error('状态更新失败:', error);
       }
     };
 
@@ -248,7 +266,7 @@ function App() {
           {activeTab === 'daily' && (
             <div className="max-w-4xl mx-auto">
               <DailyTasks
-                selectedDate={formatLocalDate(new Date())}
+                selectedDate={selectedDate || formatLocalDate(new Date())}
                 tasks={tasks}
                 onTaskUpdate={handleTaskEdit}
               />

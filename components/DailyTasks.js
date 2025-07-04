@@ -72,8 +72,8 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate }) {
     return (
       <div className="card" data-name="dailyTasks" data-file="components/DailyTasks.js">
         <div className="text-center mb-6">
-          <div className="oval-label-today" style={{marginBottom: '12px', minWidth: '96px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', padding: '4px 8px'}}>
-            <span className="icon-calendar text-sm mr-1" style={{color: '#aa96da'}}></span>
+          <div className="oval-label-today" style={{marginBottom: '12px', minWidth: '115px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', padding: '5px 10px'}}>
+            <span className="icon-calendar text-base mr-1" style={{color: '#aa96da'}}></span>
             {formatDate(selectedDate || new Date().toISOString().split('T')[0])}
           </div>
           <div className="text-sm text-gray-500 mt-2">
@@ -95,6 +95,7 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate }) {
                 tasks={pendingTasks.filter(task => task.category === '工作')}
                 onTaskUpdate={onTaskUpdate}
                 allTasks={tasks}
+                selectedDate={selectedDate}
               />
               <DailyTaskModule
                 title="学习"
@@ -102,6 +103,7 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate }) {
                 tasks={pendingTasks.filter(task => task.category === '学习')}
                 onTaskUpdate={onTaskUpdate}
                 allTasks={tasks}
+                selectedDate={selectedDate}
               />
               <DailyTaskModule
                 title="生活"
@@ -109,6 +111,7 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate }) {
                 tasks={pendingTasks.filter(task => task.category === '生活')}
                 onTaskUpdate={onTaskUpdate}
                 allTasks={tasks}
+                selectedDate={selectedDate}
               />
               <DailyTaskModule
                 title="健康"
@@ -116,6 +119,7 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate }) {
                 tasks={pendingTasks.filter(task => task.category === '健康')}
                 onTaskUpdate={onTaskUpdate}
                 allTasks={tasks}
+                selectedDate={selectedDate}
               />
               <DailyTaskModule
                 title="其他"
@@ -123,6 +127,7 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate }) {
                 tasks={pendingTasks.filter(task => task.category === '其他')}
                 onTaskUpdate={onTaskUpdate}
                 allTasks={tasks}
+                selectedDate={selectedDate}
               />
             </div>
 
