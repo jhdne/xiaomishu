@@ -28,7 +28,7 @@ function Calendar({ tasks, selectedDate, onDateSelect }) {
     };
 
     const getTasksForDate = (date) => {
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = formatLocalDate(date);
       return tasks.filter(task => {
         // 严格检查任务的计划日期
         if (task.scheduledDate === dateStr) return true;
@@ -49,6 +49,15 @@ function Calendar({ tasks, selectedDate, onDateSelect }) {
 
     const days = getDaysInMonth(currentMonth);
     const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+
+    // 工具函数：本地日期转YYYY-MM-DD字符串
+    function formatLocalDate(date) {
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
 
     return (
       <div className="card" data-name="calendar" data-file="components/Calendar.js">
@@ -75,7 +84,7 @@ function Calendar({ tasks, selectedDate, onDateSelect }) {
         <div className="grid grid-cols-7 gap-1">
           {days.map(({ date, isCurrentMonth }, index) => {
             const tasksForDay = getTasksForDate(date);
-            const isSelected = selectedDate === date.toISOString().split('T')[0];
+            const isSelected = selectedDate === formatLocalDate(date);
             const isToday = date.toDateString() === new Date().toDateString();
 
             return (
@@ -83,7 +92,7 @@ function Calendar({ tasks, selectedDate, onDateSelect }) {
                 key={index}
                 onClick={() => {
                   if (isCurrentMonth) {
-                    const dateStr = date.toISOString().split('T')[0];
+                    const dateStr = formatLocalDate(date);
                     onDateSelect(dateStr);
                   }
                 }}

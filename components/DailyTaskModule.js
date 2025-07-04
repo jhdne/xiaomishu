@@ -40,7 +40,7 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks }) {
                   {task.subtasks && task.subtasks.length > 0 && (
                     <div className="mt-2">
                       <div className="text-xs text-gray-600 space-y-1">
-                        {task.subtasks.slice(0, 3).map((subtask, subtaskIndex) => {
+                        {task.subtasks.map((subtask, subtaskIndex) => {
                           const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
                           return (
                             <div key={subtaskIndex} className="flex items-center justify-between bg-gray-50 p-2 rounded">
@@ -61,7 +61,6 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks }) {
                                   e.stopPropagation();
                                   const currentSubtask = typeof subtask === 'string' ? subtask : subtask.name;
                                   const currentDate = typeof subtask === 'object' && subtask.date ? subtask.date : task.deadline;
-                                  
                                   const newSubtaskName = prompt('编辑子任务内容:', currentSubtask);
                                   if (newSubtaskName && newSubtaskName.trim()) {
                                     const newDate = prompt('编辑执行日期(YYYY-MM-DD):', currentDate);
@@ -93,9 +92,6 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks }) {
                             </div>
                           );
                         })}
-                        {task.subtasks.length > 3 && (
-                          <div className="text-gray-400">还有 {task.subtasks.length - 3} 个子任务...</div>
-                        )}
                       </div>
                     </div>
                   )}

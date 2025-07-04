@@ -34,10 +34,19 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+// 工具函数：本地日期转YYYY-MM-DD字符串
+function formatLocalDate(date) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function App() {
   try {
     const [tasks, setTasks] = React.useState([]);
-    const [selectedDate, setSelectedDate] = React.useState(new Date().toISOString().split('T')[0]);
+    const [selectedDate, setSelectedDate] = React.useState(formatLocalDate(new Date()));
     const [isProcessing, setIsProcessing] = React.useState(false);
     const [activeTab, setActiveTab] = React.useState('daily');
     const [showAllTasks, setShowAllTasks] = React.useState(false);
@@ -70,7 +79,7 @@ function App() {
           const newTask = await trickleCreateObject('task', {
             ...taskData,
             status: '已分配',
-            createdAt: new Date().toISOString()
+            createdAt: formatLocalDate(new Date())
           });
 
           const decomposition = await aiAgent.decomposeTask(taskData);
@@ -91,7 +100,7 @@ function App() {
             
             return {
               name: subtask,
-              date: assignedDate.toISOString().split('T')[0],
+              date: formatLocalDate(assignedDate),
               completed: false,
               priority: index + 1,
               originalText: subtask,
@@ -113,7 +122,7 @@ function App() {
           await trickleCreateObject('task', {
             ...taskData,
             status: '已分配',
-            createdAt: new Date().toISOString()
+            createdAt: formatLocalDate(new Date())
           });
         }
 
@@ -208,7 +217,7 @@ function App() {
           {activeTab === 'daily' && (
             <div className="max-w-4xl mx-auto">
               <DailyTasks
-                selectedDate={new Date().toISOString().split('T')[0]}
+                selectedDate={formatLocalDate(new Date())}
                 tasks={tasks}
                 onTaskUpdate={handleTaskEdit}
               />
