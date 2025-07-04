@@ -43,9 +43,23 @@ function formatLocalDate(date) {
   return `${year}-${month}-${day}`;
 }
 
+// localStorage持久化工具
+function saveTasksToStorage(tasks) {
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+function loadTasksFromStorage() {
+  try {
+    const data = localStorage.getItem('tasks');
+    if (data) return JSON.parse(data);
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function App() {
   try {
-    const [tasks, setTasks] = React.useState([]);
+    const [tasks, setTasks] = React.useState(() => loadTasksFromStorage() || []);
     const [selectedDate, setSelectedDate] = React.useState(formatLocalDate(new Date()));
     const [isProcessing, setIsProcessing] = React.useState(false);
     const [activeTab, setActiveTab] = React.useState('daily');
@@ -161,6 +175,9 @@ function App() {
         console.error('更新状态失败:', error);
       }
     };
+
+    // 在每次任务变更后自动保存到localStorage
+    React.useEffect(() => { saveTasksToStorage(tasks); }, [tasks]);
 
     return (
       <div className="min-h-screen bg-gray-50" data-name="app" data-file="app.js">
@@ -479,6 +496,20 @@ function App() {
                 ) : (
                   <div className={`card task-panel ${showAllTasks ? 'visible' : 'hidden'}`}>
                     <div className="oval-label-all-tasks" style={{marginBottom: '16px'}}>所有任务</div>
+                    <div style={{display: 'flex', alignItems: 'center', fontWeight: 'bold', fontSize: '13px', borderBottom: '1px solid #e9ecef', padding: '8px 0', background: '#f8f9fa'}}>
+                      <span style={{width: '40px'}}>序号
+                        <span title="任务在列表中的顺序">🛈</span>
+                      </span>
+                      <span style={{width: '60px'}}>类型
+                        <span title="任务类别，如工作/学习/生活等">🛈</span>
+                      </span>
+                      <span style={{flex: 1}}>任务
+                        <span title="任务标题">🛈</span>
+                      </span>
+                      <span style={{width: '110px'}}>截止时间
+                        <span title="任务的截止日期">🛈</span>
+                      </span>
+                    </div>
                     <div style={{maxHeight: '500px', overflow: 'auto'}}>
                       {['工作', '学习', '生活', '健康', '其他'].map(category => {
                         const categoryTasks = tasks.filter(task => task.category === category).sort((a, b) => {

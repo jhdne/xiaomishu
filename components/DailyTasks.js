@@ -72,7 +72,8 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate }) {
     return (
       <div className="card" data-name="dailyTasks" data-file="components/DailyTasks.js">
         <div className="text-center mb-6">
-          <div className="oval-label-today" style={{marginBottom: '12px'}}>
+          <div className="oval-label-today" style={{marginBottom: '12px', minWidth: '160px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px'}}>
+            <span className="icon-calendar text-lg mr-2" style={{color: '#aa96da'}}></span>
             {formatDate(selectedDate || new Date().toISOString().split('T')[0])}
           </div>
           <div className="text-sm text-gray-500 mt-2">
