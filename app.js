@@ -314,7 +314,7 @@ function App() {
                                     {task.subtasks.map((subtask, index) => {
                                       const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
                                       return (
-                                        <div key={index} style={{fontSize: '11px', color: '#6c757d', marginLeft: '8px', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                                        <div key={index} style={{fontSize: '11px', color: '#6c757d', marginLeft: '8px', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap'}}>
                                           <span style={{fontWeight: '500', color: '#495057'}}>{circledNumbers[index] || `⑩+${index-9}`}</span>
                                           {subtask.editing ? (
                                             <>
@@ -339,7 +339,7 @@ function App() {
                                                     handleTaskEdit(task.objectId, { subtasks: updated });
                                                   }
                                                 }}
-                                                style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', minWidth: '60px'}}
+                                                style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', minWidth: '60px', marginRight: '4px'}}
                                               />
                                               <input
                                                 type="date"
@@ -349,12 +349,17 @@ function App() {
                                                   updated[index] = { ...subtask, date: e.target.value };
                                                   handleTaskEdit(task.objectId, { subtasks: updated });
                                                 }}
+                                                onBlur={() => {
+                                                  const updated = [...task.subtasks];
+                                                  updated[index] = { ...subtask, editing: false };
+                                                  handleTaskEdit(task.objectId, { subtasks: updated });
+                                                }}
                                                 style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', marginLeft: '4px'}}
                                               />
                                             </>
                                           ) : (
                                             <>
-                                              <span style={{flex: 1}}>{subtask.name}</span>
+                                              <span style={{flex: 1, wordBreak: 'break-all', whiteSpace: 'pre-line'}}>{subtask.name}</span>
                                               <span style={{color: '#6c757d', minWidth: '70px'}}>{subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}</span>
                                               <button
                                                 onClick={e => {
@@ -363,8 +368,11 @@ function App() {
                                                   updated[index] = { ...subtask, editing: true };
                                                   handleTaskEdit(task.objectId, { subtasks: updated });
                                                 }}
-                                                style={{background: 'none', border: 'none', color: '#aa96da', cursor: 'pointer', padding: '2px', marginRight: '4px'}}
+                                                style={{background: 'none', border: 'none', color: '#aa96da', cursor: 'pointer', padding: '2px', marginRight: '4px', display: 'inline-flex', alignItems: 'center'}}
                                                 aria-label="编辑子任务"
+                                                tabIndex={0}
+                                                onMouseOver={e => e.currentTarget.style.color = '#4a90e2'}
+                                                onMouseOut={e => e.currentTarget.style.color = '#aa96da'}
                                               >
                                                 <div className="icon-edit text-xs"></div>
                                               </button>
