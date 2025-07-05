@@ -723,194 +723,97 @@ function App() {
                 ) : (
                   <div className="card" style={{flex: 1, width: '100%', maxWidth: '700px', margin: '0 auto'}}>
                     <div className="oval-label-large" style={{marginBottom: '16px', textAlign: 'center'}}>所有任务</div>
-                    {tasks.filter(task => task.status === '已分配').length === 0 ? (
+                    {tasks.length === 0 ? (
                       <div className="text-center" style={{padding: '32px 16px'}}>
                         <div className="icon-clock text-3xl mb-3" style={{color: '#6c757d'}}></div>
                         <p style={{color: '#6c757d', margin: 0}}>暂无任务</p>
                       </div>
                     ) : (
-                      <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
-                        {tasks
-                          .filter(task => task.status !== '已完成')
-                          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                          .map((task, taskIndex) => (
-                            <div key={task.objectId} className="card" style={{padding: '12px', border: '1px solid #ffc107'}}>
-                              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
-                                <div style={{flex: 1}}>
-                                  <h4 style={{fontSize: '14px', fontWeight: '500', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '4px'}}>
-                                    <span className="oval-label-task" style={{marginRight: '8px'}}>{taskIndex + 1}</span>
-                                    {task.editingTitle ? (
-                                      <input
-                                        type="text"
-                                        value={task.title}
-                                        autoFocus
-                                        onChange={e => handleTaskEdit(task.objectId, { title: e.target.value })}
-                                        onBlur={() => handleTaskEdit(task.objectId, { editingTitle: false })}
-                                        onKeyDown={e => { if (e.key === 'Enter') handleTaskEdit(task.objectId, { editingTitle: false }); }}
-                                        style={{fontSize: '14px', fontWeight: '500', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', minWidth: '80px'}}
-                                      />
-                                    ) : (
-                                      <>
-                                        {task.title}
-                                        <button
-                                          onClick={e => { e.stopPropagation(); handleTaskEdit(task.objectId, { editingTitle: true }); }}
-                                          style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}}
-                                          aria-label="编辑任务标题"
-                                        >✏️</button>
-                                      </>
-                                    )}
-                                  </h4>
-                                  <span style={{fontSize: '12px', color: '#6c757d', display: 'flex', alignItems: 'center', gap: '4px'}}>
-                                    {task.category} • 截止: 
-                                    {task.editingDeadline ? (
-                                      <input
-                                        type="date"
-                                        value={task.deadline}
-                                        autoFocus
-                                        onChange={e => handleTaskEdit(task.objectId, { deadline: e.target.value })}
-                                        onBlur={() => handleTaskEdit(task.objectId, { editingDeadline: false })}
-                                        onKeyDown={e => { if (e.key === 'Enter') handleTaskEdit(task.objectId, { editingDeadline: false }); }}
-                                        style={{fontSize: '12px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px'}}
-                                      />
-                                    ) : (
-                                      <>
-                                        <span>{new Date(task.deadline).toLocaleDateString()}</span>
-                                        <button
-                                          onClick={e => { e.stopPropagation(); handleTaskEdit(task.objectId, { editingDeadline: true }); }}
-                                          style={{marginLeft: '4px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}}
-                                          aria-label="编辑截止时间"
-                                        >✏️</button>
-                                      </>
-                                    )}
-                                  </span>
-                                  {task.subtasks && task.subtasks.length > 0 && (
-                                    <div style={{marginTop: '8px'}}>
-                                      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px'}}>
-                                        <p style={{fontSize: '12px', fontWeight: '500', margin: 0}}>子任务:</p>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            const newSubtaskName = prompt('添加新子任务:');
-                                            if (newSubtaskName && newSubtaskName.trim()) {
-                                              const newSubtask = {
-                                                name: newSubtaskName.trim(),
-                                                completed: false,
-                                                priority: task.subtasks.length + 1,
-                                                originalText: newSubtaskName.trim()
-                                              };
-                                              handleTaskEdit(task.objectId, { subtasks: [...task.subtasks, newSubtask] });
-                                            }
-                                          }}
-                                          style={{width: '26px', height: '26px', borderRadius: '50%', background: '#00C8FF', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
-                                        >
-                                          <div className="icon-plus text-xs"></div>
-                                        </button>
+                      <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
+                        {(() => {
+                          // 按类别分组
+                          const groupedTasks = {};
+                          tasks.forEach(task => {
+                            if (!groupedTasks[task.category]) {
+                              groupedTasks[task.category] = [];
+                            }
+                            groupedTasks[task.category].push(task);
+                          });
+
+                          // 对每个类别内的任务进行排序
+                          Object.keys(groupedTasks).forEach(category => {
+                            groupedTasks[category].sort((a, b) => {
+                              // 首先按状态排序：进行中 > 已完成
+                              const statusOrder = { '进行中': 1, '已完成': 2 };
+                              const statusDiff = (statusOrder[a.status] || 3) - (statusOrder[b.status] || 3);
+                              if (statusDiff !== 0) return statusDiff;
+                              
+                              // 同状态按截止时间排序：早的在前
+                              return new Date(a.deadline) - new Date(b.deadline);
+                            });
+                          });
+
+                          return Object.keys(groupedTasks).map(category => {
+                            const categoryTasks = groupedTasks[category];
+                            return (
+                              <div key={category}>
+                                <h3 style={{fontSize: '16px', fontWeight: '600', margin: '0 0 12px 0', color: '#495057'}}>{category}</h3>
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+                                  {categoryTasks.map((task, taskIndex) => (
+                                    <div 
+                                      key={task.objectId} 
+                                      className="card" 
+                                      style={{
+                                        padding: '12px', 
+                                        border: '1px solid #ffc107',
+                                        cursor: 'pointer',
+                                        transition: 'background-color 0.2s'
+                                      }}
+                                      onClick={() => {
+                                        // 切换子任务显示状态
+                                        const updatedTask = { ...task, showSubtasks: !task.showSubtasks };
+                                        handleTaskEdit(task.objectId, updatedTask);
+                                      }}
+                                      onMouseOver={e => { e.currentTarget.style.backgroundColor = '#f8f9fa'; }}
+                                      onMouseOut={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                                    >
+                                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                                        <div style={{flex: 1}}>
+                                          <h4 style={{fontSize: '14px', fontWeight: '500', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                                            <span className="oval-label-task" style={{marginRight: '8px'}}>{taskIndex + 1}</span>
+                                            {task.title}
+                                          </h4>
+                                          <span style={{fontSize: '12px', color: '#6c757d', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                                            {task.category} • 截止: {new Date(task.deadline).toLocaleDateString()} • {task.status}
+                                          </span>
+                                          {task.subtasks && task.subtasks.length > 0 && task.showSubtasks && (
+                                            <div style={{marginTop: '8px'}}>
+                                              <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
+                                                <p style={{fontSize: '12px', fontWeight: '500', margin: 0}}>子任务:</p>
+                                              </div>
+                                              {task.subtasks.map((subtask, index) => {
+                                                const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
+                                                return (
+                                                  <div key={index} style={{fontSize: '11px', color: '#6c757d', marginLeft: '8px', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap'}}>
+                                                    <span style={{fontWeight: '500', color: '#495057'}}>{circledNumbers[index] || `⑩+${index-9}`}</span>
+                                                    <span style={{flex: 1, wordBreak: 'break-all', whiteSpace: 'pre-line'}}>{typeof subtask === 'object' ? subtask.name : subtask}</span>
+                                                    <span style={{color: '#6c757d', minWidth: '70px'}}>
+                                                      {subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
+                                                    </span>
+                                                  </div>
+                                                );
+                                              })}
+                                            </div>
+                                          )}
+                                        </div>
                                       </div>
-                                      {task.subtasks.map((subtask, index) => {
-                                        const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
-                                        const isEditing = subtask.editing;
-                                        return (
-                                          <div key={index} style={{fontSize: '11px', color: '#6c757d', marginLeft: '8px', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap'}}>
-                                            <span style={{fontWeight: '500', color: '#495057'}}>{circledNumbers[index] || `⑩+${index-9}`}</span>
-                                            {isEditing ? (
-                                              <>
-                                                <input
-                                                  type="text"
-                                                  value={subtask.name}
-                                                  autoFocus
-                                                  onChange={e => {
-                                                    const updated = [...task.subtasks];
-                                                    updated[index] = { ...subtask, name: e.target.value };
-                                                    handleTaskEdit(task.objectId, { subtasks: updated });
-                                                  }}
-                                                  style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', minWidth: '60px', marginRight: '4px'}}
-                                                />
-                                                <input
-                                                  type="date"
-                                                  value={subtask.date || task.deadline}
-                                                  onChange={e => {
-                                                    const updated = [...task.subtasks];
-                                                    updated[index] = { ...subtask, date: e.target.value };
-                                                    handleTaskEdit(task.objectId, { subtasks: updated });
-                                                  }}
-                                                  style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', marginLeft: '4px'}}
-                                                />
-                                                <button
-                                                  onClick={() => {
-                                                    const updated = [...task.subtasks];
-                                                    updated[index] = { ...subtask, editing: false };
-                                                    handleTaskEdit(task.objectId, { subtasks: updated });
-                                                  }}
-                                                  style={{background: '#aa96da', color: '#fff', border: 'none', borderRadius: '4px', padding: '2px 8px', marginLeft: '4px', fontSize: '11px', cursor: 'pointer'}}
-                                                >保存</button>
-                                              </>
-                                            ) : (
-                                              <>
-                                                <span style={{flex: 1, wordBreak: 'break-all', whiteSpace: 'pre-line'}}>{typeof subtask === 'object' ? subtask.name : subtask}</span>
-                                                <span
-                                                  style={{color: '#6c757d', minWidth: '70px', cursor: 'pointer'}}
-                                                  onClick={e => {
-                                                    e.stopPropagation();
-                                                    const updated = [...task.subtasks];
-                                                    updated[index] = { ...subtask, editing: true };
-                                                    handleTaskEdit(task.objectId, { subtasks: updated });
-                                                  }}
-                                                  tabIndex={0}
-                                                >
-                                                  {subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
-                                                </span>
-                                                <button
-                                                  onClick={e => {
-                                                    e.stopPropagation();
-                                                    const updated = [...task.subtasks];
-                                                    updated[index] = { ...subtask, editing: true };
-                                                    handleTaskEdit(task.objectId, { subtasks: updated });
-                                                  }}
-                                                  style={{background: '#fff', border: '1px solid #aa96da', color: '#aa96da', borderRadius: '50%', width: '16px', height: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginRight: '4px', transition: 'background 0.2s, color 0.2s', fontSize: '8px'}}
-                                                  aria-label="编辑子任务"
-                                                  tabIndex={0}
-                                                  onMouseOver={e => { e.currentTarget.style.background = '#aa96da'; e.currentTarget.style.color = '#fff'; }}
-                                                  onMouseOut={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#aa96da'; }}
-                                                >
-                                                  <span style={{fontSize: '8px'}}>✏️</span>
-                                                </button>
-                                              </>
-                                            )}
-                                            <button
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                const updatedSubtasks = task.subtasks.filter((_, i) => i !== index);
-                                                if (updatedSubtasks.length === 0) {
-                                                  handleTaskDelete(task.objectId);
-                                                } else {
-                                                  handleTaskEdit(task.objectId, { subtasks: updatedSubtasks });
-                                                }
-                                              }}
-                                              style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '2px'}}
-                                              aria-label="删除子任务"
-                                            >
-                                              <div className="icon-x text-xs"></div>
-                                            </button>
-                                          </div>
-                                        );
-                                      })}
                                     </div>
-                                  )}
+                                  ))}
                                 </div>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (confirm('确定要删除整个任务吗？')) {
-                                      handleTaskDelete(task.objectId);
-                                    }
-                                  }}
-                                  style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px 8px'}}
-                                >
-                                  <div className="icon-trash text-xs"></div>
-                                </button>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          });
+                        })()}
                       </div>
                     )}
                   </div>
