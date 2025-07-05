@@ -759,6 +759,24 @@ function App() {
                               <div key={category}>
                                 <h3 style={{fontSize: '16px', fontWeight: '600', margin: '0 0 12px 0', color: '#495057'}}>{category}</h3>
                                 <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+                                  {/* 列标题 */}
+                                  <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '60px 1fr 120px 80px',
+                                    gap: '12px',
+                                    padding: '8px 12px',
+                                    backgroundColor: '#f8f9fa',
+                                    borderRadius: '4px',
+                                    fontSize: '12px',
+                                    fontWeight: '600',
+                                    color: '#495057'
+                                  }}>
+                                    <div>序号</div>
+                                    <div>任务</div>
+                                    <div>截止时间</div>
+                                    <div>状态</div>
+                                  </div>
+                                  {/* 任务内容 */}
                                   {categoryTasks.map((task, taskIndex) => (
                                     <div 
                                       key={task.objectId} 
@@ -777,36 +795,41 @@ function App() {
                                       onMouseOver={e => { e.currentTarget.style.backgroundColor = '#f8f9fa'; }}
                                       onMouseOut={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
                                     >
-                                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
-                                        <div style={{flex: 1}}>
-                                          <h4 style={{fontSize: '14px', fontWeight: '500', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '4px'}}>
-                                            <span className="oval-label-task" style={{marginRight: '8px'}}>{taskIndex + 1}</span>
-                                            {task.title}
-                                          </h4>
-                                          <span style={{fontSize: '12px', color: '#6c757d', display: 'flex', alignItems: 'center', gap: '4px'}}>
-                                            {task.category} • 截止: {new Date(task.deadline).toLocaleDateString()} • {task.status}
-                                          </span>
-                                          {task.subtasks && task.subtasks.length > 0 && task.showSubtasks && (
-                                            <div style={{marginTop: '8px'}}>
-                                              <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
-                                                <p style={{fontSize: '12px', fontWeight: '500', margin: 0}}>子任务:</p>
-                                              </div>
-                                              {task.subtasks.map((subtask, index) => {
-                                                const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
-                                                return (
-                                                  <div key={index} style={{fontSize: '11px', color: '#6c757d', marginLeft: '8px', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap'}}>
-                                                    <span style={{fontWeight: '500', color: '#495057'}}>{circledNumbers[index] || `⑩+${index-9}`}</span>
-                                                    <span style={{flex: 1, wordBreak: 'break-all', whiteSpace: 'pre-line'}}>{typeof subtask === 'object' ? subtask.name : subtask}</span>
-                                                    <span style={{color: '#6c757d', minWidth: '70px'}}>
-                                                      {subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
-                                                    </span>
-                                                  </div>
-                                                );
-                                              })}
-                                            </div>
-                                          )}
+                                      <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: '60px 1fr 120px 80px',
+                                        gap: '12px',
+                                        alignItems: 'center',
+                                        fontSize: '14px'
+                                      }}>
+                                        <div style={{fontWeight: '500'}}>{taskIndex + 1}</div>
+                                        <div style={{fontWeight: '500'}}>{task.title}</div>
+                                        <div style={{color: '#6c757d', fontSize: '12px'}}>
+                                          {new Date(task.deadline).toISOString().split('T')[0]}
+                                        </div>
+                                        <div style={{color: '#6c757d', fontSize: '12px'}}>
+                                          {task.status === '已分配' ? '进行中' : task.status}
                                         </div>
                                       </div>
+                                      {task.subtasks && task.subtasks.length > 0 && task.showSubtasks && (
+                                        <div style={{marginTop: '8px'}}>
+                                          <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
+                                            <p style={{fontSize: '12px', fontWeight: '500', margin: 0}}>子任务:</p>
+                                          </div>
+                                          {task.subtasks.map((subtask, index) => {
+                                            const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
+                                            return (
+                                              <div key={index} style={{fontSize: '11px', color: '#6c757d', marginLeft: '8px', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap'}}>
+                                                <span style={{fontWeight: '500', color: '#495057'}}>{circledNumbers[index] || `⑩+${index-9}`}</span>
+                                                <span style={{flex: 1, wordBreak: 'break-all', whiteSpace: 'pre-line'}}>{typeof subtask === 'object' ? subtask.name : subtask}</span>
+                                                <span style={{color: '#6c757d', minWidth: '70px'}}>
+                                                  {subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
+                                                </span>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
                                     </div>
                                   ))}
                                 </div>
