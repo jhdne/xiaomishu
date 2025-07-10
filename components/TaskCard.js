@@ -22,24 +22,32 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
       return imageMap[category] || '其它';
     };
 
-    // 判断主任务勾选框显示与状态
-    const hasSubtasks = Array.isArray(task.subtasks) && task.subtasks.length > 0;
-    const allSubtasksDeleted = hasSubtasks && task.subtasks.length === 0;
-    // 兼容AI生成的subtasks为[]或undefined
-    const shouldShowCheckbox = !hasSubtasks || (hasSubtasks && task.subtasks.length === 0);
+    // --- 修正版主任务与子任务状态逻辑 ---
+    // 判断是否有subtasks字段
+    const hasSubtasksField = Array.isArray(task.subtasks);
+    const subtasksCount = hasSubtasksField ? task.subtasks.length : 0;
+    // 记录任务创建时是否曾有子任务（用于区分“本来就无子任务”与“有子任务但被删光”）
+    // 若无此字段，则假定本来就无子任务
+    const everHadSubtasks = task._everHadSubtasks !== undefined ? task._everHadSubtasks : (hasSubtasksField && subtasksCount > 0);
+    // “本来就无子任务”
+    const isOriginallyNoSubtasks = !hasSubtasksField || (!everHadSubtasks && subtasksCount === 0);
+    // “有子任务但被删光”
+    const isAllSubtasksDeleted = hasSubtasksField && everHadSubtasks && subtasksCount === 0;
+    // 主任务勾选框显示条件
+    const shouldShowCheckbox = isOriginallyNoSubtasks || isAllSubtasksDeleted;
     // 主任务已完成
     const isTaskCompleted = task.status === '已完成';
 
     // 自动勾选：有子任务但全部被删除时，自动标记为已完成
     React.useEffect(() => {
-      if (hasSubtasks && task.subtasks.length === 0 && !isTaskCompleted) {
+      if (isAllSubtasksDeleted && !isTaskCompleted) {
         onStatusChange(task.objectId, '已完成');
       }
       // 若后续添加子任务，自动去除已完成状态
-      if (hasSubtasks && task.subtasks.length > 0 && isTaskCompleted) {
+      if (hasSubtasksField && subtasksCount > 0 && isTaskCompleted) {
         onStatusChange(task.objectId, '进行中');
       }
-    }, [task.subtasks && task.subtasks.length, isTaskCompleted]);
+    }, [subtasksCount, isTaskCompleted]);
 
     return (
       <div className="card" data-name="taskCard" data-file="components/TaskCard.js" style={{borderLeft: `4px solid var(--brand-color)`}}>
@@ -49,14 +57,14 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
             {shouldShowCheckbox && (
               <button
                 onClick={() => {
-                  if (!hasSubtasks) {
+                  if (isOriginallyNoSubtasks) {
                     onStatusChange(task.objectId, isTaskCompleted ? '进行中' : '已完成');
                   }
                 }}
-                disabled={hasSubtasks} // 有子任务但全部被删时，勾选框不可操作
+                disabled={isAllSubtasksDeleted} // 有子任务但全部被删时，勾选框不可操作
                 aria-label={isTaskCompleted ? '标记为未完成' : '标记为已完成'}
                 title={isTaskCompleted ? '标记为未完成' : '标记为已完成'}
-                style={{marginRight: '8px', background: 'none', border: 'none', padding: 0, cursor: hasSubtasks ? 'not-allowed' : 'pointer', outline: 'none'}}
+                style={{marginRight: '8px', background: 'none', border: 'none', padding: 0, cursor: isAllSubtasksDeleted ? 'not-allowed' : 'pointer', outline: 'none'}}
               >
                 {isTaskCompleted ? (
                   // 极简勾选圆SVG
