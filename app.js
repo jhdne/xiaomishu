@@ -1363,11 +1363,41 @@ function App() {
                                           const deadline = new Date(task.deadline);
                                           const hasSubtasks = Array.isArray(task.subtasks) && task.subtasks.length > 0;
                                           if (!hasSubtasks) {
-                                            return <div style={{color: '#10B981', background: 'none', borderRadius: '4px', padding: '2px 8px'}}>已完成</div>;
+                                            return <div style={{
+                                              color: '#fff',
+                                              background: '#10B981',
+                                              borderRadius: '999px',
+                                              padding: '4px 18px',
+                                              fontWeight: 600,
+                                              fontSize: '14px',
+                                              display: 'inline-block',
+                                              minWidth: '60px',
+                                              textAlign: 'center'
+                                            }}>已完成</div>;
                                           } else if (hasSubtasks && now <= deadline) {
-                                            return <div style={{color: '#3B82F6', background: 'none', borderRadius: '4px', padding: '2px 8px'}}>进行中</div>;
+                                            return <div style={{
+                                              color: '#fff',
+                                              background: '#3B82F6',
+                                              borderRadius: '999px',
+                                              padding: '4px 18px',
+                                              fontWeight: 600,
+                                              fontSize: '14px',
+                                              display: 'inline-block',
+                                              minWidth: '60px',
+                                              textAlign: 'center'
+                                            }}>进行中</div>;
                                           } else if (hasSubtasks && now > deadline) {
-                                            return <div style={{color: '#fff', background: '#EF4444', borderRadius: '4px', padding: '2px 8px'}}>未完成</div>;
+                                            return <div style={{
+                                              color: '#fff',
+                                              background: '#EF4444',
+                                              borderRadius: '999px',
+                                              padding: '4px 18px',
+                                              fontWeight: 600,
+                                              fontSize: '14px',
+                                              display: 'inline-block',
+                                              minWidth: '60px',
+                                              textAlign: 'center'
+                                            }}>未完成</div>;
                                           } else {
                                             return null;
                                           }
