@@ -22,74 +22,12 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
       return imageMap[category] || '其它';
     };
 
-    // --- 主任务勾选框显示与交互修正版 ---
-    // 判断是否有subtasks字段
-    const hasSubtasksField = Array.isArray(task.subtasks);
-    const subtasksCount = hasSubtasksField ? task.subtasks.length : 0;
-    // everHadSubtasks用于区分“本来就无子任务”与“有子任务但被删光”
-    // 若无此字段，默认本来就无子任务
-    const everHadSubtasks = task._everHadSubtasks || false;
-    // “有子任务但被删光”
-    const isAllSubtasksDeleted = hasSubtasksField && subtasksCount === 0 && everHadSubtasks;
-    // “本来就无子任务”
-    const isOriginallyNoSubtasks = !hasSubtasksField || (!everHadSubtasks && subtasksCount === 0);
-    // 主任务已完成
-    const isTaskCompleted = task.status === '已完成';
-
-    // 自动勾选：有子任务但全部被删除时，自动标记为已完成
-    React.useEffect(() => {
-      if (isAllSubtasksDeleted && !isTaskCompleted) {
-        onStatusChange(task.objectId, '已完成');
-      }
-      // 若后续添加子任务，自动去除已完成状态
-      if (hasSubtasksField && subtasksCount > 0 && isTaskCompleted) {
-        onStatusChange(task.objectId, '进行中');
-      }
-    }, [subtasksCount, isTaskCompleted]);
-
     return (
       <div className="card" data-name="taskCard" data-file="components/TaskCard.js" style={{borderLeft: `4px solid var(--brand-color)`}}>
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px'}}>
-          <div style={{display: 'flex', alignItems: 'center'}}>
-            {/* 主任务勾选框始终显示，交互根据场景控制 */}
-            <button
-              onClick={() => {
-                if (isOriginallyNoSubtasks) {
-                  onStatusChange(task.objectId, isTaskCompleted ? '进行中' : '已完成');
-                }
-              }}
-              disabled={isAllSubtasksDeleted} // 有子任务但被删光时不可操作
-              aria-label={isTaskCompleted ? '标记为未完成' : '标记为已完成'}
-              title={isTaskCompleted ? '标记为未完成' : '标记为已完成'}
-              style={{marginRight: '8px', background: 'none', border: 'none', padding: 0, cursor: isAllSubtasksDeleted ? 'not-allowed' : 'pointer', outline: 'none'}}
-            >
-              {isTaskCompleted ? (
-                // 极简勾选圆SVG
-                <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false" className="text-green-600" style={{display:'block'}}>
-                  <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                  <polyline points="5.2,8.5 7.2,10.5 11,6.5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              ) : (
-                // 极简空心圆SVG
-                <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false" className="text-gray-400" style={{display:'block'}}>
-                  <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                </svg>
-              )}
-            </button>
-            <h3
-              style={{
-                fontSize: '16px',
-                fontWeight: '400',
-                margin: 0,
-                textDecoration: isTaskCompleted && shouldShowCheckbox ? 'line-through' : 'none',
-                color: isTaskCompleted && shouldShowCheckbox ? '#aaa' : undefined
-              }}
-              className={isTaskCompleted && shouldShowCheckbox ? 'subtask-deleted' : ''}
-            >
-              {task.title}
-              <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
-            </h3>
-          </div>
+          <h3 style={{fontSize: '16px', fontWeight: '400', margin: 0}}>{task.title}
+            <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
+          </h3>
           <button 
             onClick={() => onDelete(task.objectId)} 
             style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px'}}
