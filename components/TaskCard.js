@@ -28,12 +28,23 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
           <h3 style={{fontSize: '16px', fontWeight: '400', margin: 0}}>{task.title}
             <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
           </h3>
-          <button 
-            onClick={() => onDelete(task.objectId)} 
-            style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px'}}
-          >
-            <div className="icon-trash text-sm"></div>
-          </button>
+          {/* DaisyUI Popover 删除确认 */}
+          <div className="popover popover-right" tabIndex={0} style={{display: 'inline-block'}}>
+            <button
+              className="btn btn-error btn-sm"
+              style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px'}}
+              tabIndex={0}
+            >
+              <div className="icon-trash text-sm"></div>
+            </button>
+            <div className="popover-content bg-base-100 shadow-lg rounded-lg p-4" style={{minWidth: '180px'}}>
+              <span className="block text-sm mb-2">确定要删除整个任务吗</span>
+              <div className="flex gap-2 justify-end">
+                <button className="btn btn-error btn-xs" onClick={() => onDelete(task.objectId)}>确认</button>
+                <button className="btn btn-ghost btn-xs" onClick={e => e.currentTarget.closest('.popover').blur()}>取消</button>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div style={{marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center'}}>
