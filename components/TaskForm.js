@@ -201,7 +201,7 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
                         fontSize: '12px'
                       }}
                     />
-                    <select
+              <select
                       value={newCategoryIcon}
                       onChange={(e) => setNewCategoryIcon(e.target.value)}
                       style={{
@@ -210,7 +210,7 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
                         borderRadius: '4px',
                         fontSize: '12px'
                       }}
-                    >
+              >
                       <option value="star">⭐ 星</option>
                       <option value="heart">❤️ 心</option>
                       <option value="flag">🚩 旗</option>
@@ -221,7 +221,7 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
                       <option value="plane">✈️ 飞机</option>
                       <option value="coffee">☕ 咖啡</option>
                       <option value="pizza">🍕 披萨</option>
-                    </select>
+              </select>
                   </div>
                   <div style={{display: 'flex', gap: '8px'}}>
                     <button
@@ -296,7 +296,7 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
 
           {/* 分段按钮提交区 */}
           <div className="btn-group w-full mt-4">
-            <button
+          <button
               type="button"
               className="btn btn-primary w-1/2"
               disabled={isProcessing || localProcessing}
@@ -380,7 +380,7 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
               }}
             >
               AI优化提交
-            </button>
+          </button>
           </div>
         </form>
       </div>

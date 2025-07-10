@@ -568,25 +568,25 @@ function App() {
                                       const textColor = getTextColor(categoryColor);
                                       
                                       return (
-                                        <div style={{
-                                          display: 'inline-flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          gap: '0.2em',
-                                          width: '50.4px',
-                                          height: '23px',
-                                          fontSize: '12px',
-                                          fontWeight: '500',
+                                    <div style={{
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      gap: '0.2em',
+                                      width: '50.4px',
+                                      height: '23px',
+                                      fontSize: '12px',
+                                      fontWeight: '500',
                                           color: textColor,
-                                          fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
-                                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                                          transition: 'all 0.2s ease',
+                                      fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
+                                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                      transition: 'all 0.2s ease',
                                           backgroundColor: categoryColor,
                                           borderRadius: '8px'
                                         }}>
                                           <i className={`fas fa-${icon}`} style={{color: textColor, fontSize: '9px'}}></i>
                                           <span>{task.category}</span>
-                                        </div>
+                                    </div>
                                       );
                                     })()}
                                     • 截止: 
@@ -689,11 +689,11 @@ function App() {
                                           </div>
                                         ) : (
                                           // 非编辑状态：显示"+"按钮
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                               startEditSubtask(task.objectId);
-                                            }}
+                                        }}
                                             style={{
                                               width: '26px',
                                               height: '26px',
@@ -707,11 +707,11 @@ function App() {
                                               justifyContent: 'center',
                                               transition: 'all 0.2s ease'
                                             }}
-                                          >
-                                            <div className="icon-plus text-xs"></div>
-                                          </button>
+                                      >
+                                        <div className="icon-plus text-xs"></div>
+                                      </button>
                                         )}
-                                      </div>
+                                    </div>
                                     </div>
                                     {task.subtasks && Array.isArray(task.subtasks) && task.subtasks.map((subtask, index) => {
                                       const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
@@ -767,70 +767,70 @@ function App() {
                                               ⋮⋮
                                             </div>
                                           )}
-                                          {isEditing ? (
-                                            <>
-                                              <input
-                                                type="text"
+                                            {isEditing ? (
+                                              <>
+                                                <input
+                                                  type="text"
                                                 value={name}
-                                                autoFocus
-                                                onChange={e => {
-                                                  const updated = [...task.subtasks];
+                                                  autoFocus
+                                                  onChange={e => {
+                                                    const updated = [...task.subtasks];
                                                   updated[index] = { ...(isObj ? subtask : {}), name: e.target.value };
-                                                  handleTaskEdit(task.objectId, { subtasks: updated });
-                                                }}
-                                                style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', minWidth: '60px', marginRight: '4px'}}
-                                              />
-                                              <input
-                                                type="date"
+                                                    handleTaskEdit(task.objectId, { subtasks: updated });
+                                                  }}
+                                                  style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', minWidth: '60px', marginRight: '4px'}}
+                                                />
+                                                <input
+                                                  type="date"
                                                 value={date}
-                                                onChange={e => {
-                                                  const updated = [...task.subtasks];
+                                                  onChange={e => {
+                                                    const updated = [...task.subtasks];
                                                   updated[index] = { ...(isObj ? subtask : {}), date: e.target.value };
-                                                  handleTaskEdit(task.objectId, { subtasks: updated });
-                                                }}
-                                                style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', marginLeft: '4px'}}
-                                              />
-                                              <button
-                                                onClick={() => {
-                                                  const updated = [...task.subtasks];
+                                                    handleTaskEdit(task.objectId, { subtasks: updated });
+                                                  }}
+                                                  style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', marginLeft: '4px'}}
+                                                />
+                                                <button
+                                                  onClick={() => {
+                                                    const updated = [...task.subtasks];
                                                   updated[index] = { ...(isObj ? subtask : {}), editing: false };
-                                                  handleTaskEdit(task.objectId, { subtasks: updated });
-                                                }}
-                                                style={{background: '#aa96da', color: '#fff', border: 'none', borderRadius: '4px', padding: '2px 8px', marginLeft: '4px', fontSize: '11px', cursor: 'pointer'}}
-                                              >保存</button>
-                                            </>
-                                          ) : (
-                                            <>
+                                                    handleTaskEdit(task.objectId, { subtasks: updated });
+                                                  }}
+                                                  style={{background: '#aa96da', color: '#fff', border: 'none', borderRadius: '4px', padding: '2px 8px', marginLeft: '4px', fontSize: '11px', cursor: 'pointer'}}
+                                                >保存</button>
+                                              </>
+                                            ) : (
+                                              <>
                                               <span style={{flex: 1, wordBreak: 'break-all', whiteSpace: 'pre-line'}}>{name}</span>
-                                              <span
-                                                style={{color: '#6c757d', minWidth: '70px', cursor: 'pointer'}}
-                                                onClick={e => {
-                                                  e.stopPropagation();
-                                                  const updated = [...task.subtasks];
+                                                <span
+                                                  style={{color: '#6c757d', minWidth: '70px', cursor: 'pointer'}}
+                                                  onClick={e => {
+                                                    e.stopPropagation();
+                                                    const updated = [...task.subtasks];
                                                   updated[index] = { ...(isObj ? subtask : {}), editing: true };
-                                                  handleTaskEdit(task.objectId, { subtasks: updated });
-                                                }}
-                                                tabIndex={0}
-                                              >
+                                                    handleTaskEdit(task.objectId, { subtasks: updated });
+                                                  }}
+                                                  tabIndex={0}
+                                                >
                                                 {safeToLocaleDateString(date || task.deadline)}
-                                              </span>
-                                              <button
-                                                onClick={e => {
-                                                  e.stopPropagation();
-                                                  const updated = [...task.subtasks];
+                                          </span>
+                                          <button
+                                                  onClick={e => {
+                                              e.stopPropagation();
+                                                    const updated = [...task.subtasks];
                                                   updated[index] = { ...(isObj ? subtask : {}), editing: true };
-                                                  handleTaskEdit(task.objectId, { subtasks: updated });
-                                                }}
-                                                style={{background: '#fff', border: '1px solid #aa96da', color: '#aa96da', borderRadius: '50%', width: '16px', height: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginRight: '4px', transition: 'background 0.2s, color 0.2s', fontSize: '8px'}}
-                                                aria-label="编辑子任务"
-                                                tabIndex={0}
-                                                onMouseOver={e => { e.currentTarget.style.background = '#aa96da'; e.currentTarget.style.color = '#fff'; }}
-                                                onMouseOut={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#aa96da'; }}
-                                              >
-                                                <span style={{fontSize: '8px'}}>✏️</span>
-                                              </button>
-                                            </>
-                                          )}
+                                                    handleTaskEdit(task.objectId, { subtasks: updated });
+                                                  }}
+                                                  style={{background: '#fff', border: '1px solid #aa96da', color: '#aa96da', borderRadius: '50%', width: '16px', height: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginRight: '4px', transition: 'background 0.2s, color 0.2s', fontSize: '8px'}}
+                                                  aria-label="编辑子任务"
+                                                  tabIndex={0}
+                                                  onMouseOver={e => { e.currentTarget.style.background = '#aa96da'; e.currentTarget.style.color = '#fff'; }}
+                                                  onMouseOut={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#aa96da'; }}
+                                                >
+                                                  <span style={{fontSize: '8px'}}>✏️</span>
+                                          </button>
+                                              </>
+                                            )}
                                           <button
                                             onClick={(e) => {
                                               e.stopPropagation();
@@ -842,7 +842,7 @@ function App() {
                                               }
                                             }}
                                             style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '2px'}}
-                                            aria-label="删除子任务"
+                                              aria-label="删除子任务"
                                           >
                                             <div className="icon-x text-xs"></div>
                                           </button>
@@ -1085,11 +1085,11 @@ function App() {
                                               </div>
                                             ) : (
                                               // 非编辑状态：显示"+"按钮
-                                              <button
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
                                                   startEditSubtask(task.objectId);
-                                                }}
+                                            }}
                                                 style={{
                                                   width: '26px',
                                                   height: '26px',
@@ -1103,9 +1103,9 @@ function App() {
                                                   justifyContent: 'center',
                                                   transition: 'all 0.2s ease'
                                                 }}
-                                              >
-                                                <div className="icon-plus text-xs"></div>
-                                              </button>
+                                          >
+                                            <div className="icon-plus text-xs"></div>
+                                          </button>
                                             )}
                                           </div>
                                         </div>

@@ -131,19 +131,19 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks, selectedD
               textColor = getTextColor(backgroundColor);
               
               return (
-                <div className="category-label-icon" style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.2em',
-                  width: '50.4px',
-                  height: '23px',
-                  fontSize: '12px',
-                  fontWeight: '500',
+            <div className="category-label-icon" style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.2em',
+              width: '50.4px',
+              height: '23px',
+              fontSize: '12px',
+              fontWeight: '500',
                   color: textColor,
-                  fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                  transition: 'all 0.2s ease',
+              fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s ease',
                   backgroundColor: backgroundColor,
                   borderRadius: title === '生活' || title === '学习' ? '20px' : '8px'
                 }}>
@@ -151,7 +151,7 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks, selectedD
                   <span>{title}</span>
                 </div>
               );
-            })()}
+              })()}
             <div style={{ 
               fontFamily: '"Source Han Sans", "思源黑体", sans-serif', 
               color: '#333333', 
