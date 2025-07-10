@@ -297,29 +297,18 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
               disabled={isProcessing}
               onClick={async (e) => {
                 e.preventDefault();
-                // 表单校验
-                if (!formData.description || !formData.startDate || !formData.endDate) {
+                console.log('按钮点击-直接提交', formData);
+                // 修正表单校验字段
+                if (!formData.title || !formData.category || !formData.endDate) {
                   alert('请填写完整的任务信息');
                   return;
                 }
-                if (new Date(formData.startDate) > new Date(formData.endDate)) {
-                  alert('开始时间不能晚于结束时间');
-                  return;
-                }
-                const autoTitle = formData.description.length > 20 
-                  ? formData.description.substring(0, 20) + '...' 
-                  : formData.description;
-                
+                setError('');
                 setIsProcessing(true);
                 try {
-                  await onTaskCreate({
-                    ...formData,
-                    title: autoTitle,
-                    deadline: formData.endDate,
-                    useAI: true // 默认使用AI拆解
-                  });
+                  await onTaskCreate(formData);
                 } catch (err) {
-                  alert(err.message || '添加失败');
+                  setError(err.message || '添加失败');
                 } finally {
                   setIsProcessing(false);
                 }
@@ -333,27 +322,21 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
               disabled={isProcessing}
               onClick={async (e) => {
                 e.preventDefault();
-                // 表单校验
-                if (!formData.description || !formData.startDate || !formData.endDate) {
+                console.log('按钮点击-AI优化提交', formData);
+                // 修正表单校验字段
+                if (!formData.title || !formData.category || !formData.endDate) {
                   alert('请填写完整的任务信息');
                   return;
                 }
-                if (new Date(formData.startDate) > new Date(formData.endDate)) {
-                  alert('开始时间不能晚于结束时间');
-                  return;
-                }
-                const autoTitle = formData.description.length > 20 
-                  ? formData.description.substring(0, 20) + '...' 
-                  : formData.description;
-                
+                setError('');
                 setIsProcessing(true);
                 try {
                   // 调用AI拆解逻辑
-                  const aiResult = await invokeAIAgent(formData.description, formData.category, formData.endDate);
+                  const aiResult = await invokeAIAgent(formData.title, formData.category, formData.endDate);
                   const subtasks = aiResult && Array.isArray(aiResult) ? aiResult : [];
-                  await onTaskCreate({ ...formData, title: autoTitle, deadline: formData.endDate, subtasks });
+                  await onTaskCreate({ ...formData, subtasks });
                 } catch (err) {
-                  alert(err.message || 'AI拆解失败');
+                  setError(err.message || 'AI拆解失败');
                 } finally {
                   setIsProcessing(false);
                 }
