@@ -348,9 +348,19 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
                   const autoTitle = formData.description.length > 20 
                     ? formData.description.substring(0, 20) + '...'
                     : formData.description;
-                  // 调用AI拆解逻辑
-                  const aiResult = await aiAgent(autoTitle, formData.category, formData.endDate);
-                  const subtasks = aiResult && Array.isArray(aiResult) ? aiResult : [];
+                  // 构造AI任务对象
+                  const taskObj = {
+                    description: formData.description,
+                    category: formData.category,
+                    deadline: formData.endDate
+                  };
+                  // 1. 智能拆解
+                  const decomposition = await (window.aiAgent?.decomposeTask?.(taskObj) ?? { subtasks: [formData.description], type: '一次性任务', complexity: '简单' });
+                  console.log('AI拆解结果:', decomposition);
+                  // 2. 智能分配
+                  const schedule = await (window.aiAgent?.scheduleTask?.(taskObj, decomposition) ?? { schedule: decomposition.subtasks.map((name, i) => ({ name, date: formData.endDate, completed: false, priority: i + 1 })) });
+                  console.log('AI分配结果:', schedule);
+                  const subtasks = schedule.schedule || decomposition.subtasks.map((name, i) => ({ name, date: formData.endDate, completed: false, priority: i + 1 }));
                   await onTaskCreate({ ...formData, title: autoTitle, subtasks });
                 } catch (err) {
                   setError(err.message || 'AI拆解失败');
