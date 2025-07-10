@@ -1364,54 +1364,51 @@ function App() {
                                           const hasSubtasks = Array.isArray(task.subtasks) && task.subtasks.length > 0;
                                           if (!hasSubtasks) {
                                             return <span style={{
-                                              color: '#fff',
-                                              background: '#10B981',
-                                              borderRadius: '999px',
-                                              padding: '2px 12px',
-                                              fontWeight: 600,
-                                              fontSize: '12px',
                                               display: 'inline-flex',
                                               alignItems: 'center',
-                                              gap: '6px',
-                                              minHeight: '22px',
-                                              minWidth: '44px',
-                                              userSelect: 'none'
+                                              gap: '4px',
+                                              fontWeight: 600,
+                                              fontSize: '11px',
+                                              color: '#10B981',
+                                              lineHeight: 1,
+                                              userSelect: 'none',
+                                              background: 'none',
+                                              border: 'none',
+                                              padding: 0
                                             }}>
-                                              <i className="fa-regular fa-circle-check" style={{fontSize: '14px'}}></i>已完成
+                                              <i className="fa-regular fa-circle-check" style={{fontSize: '13px', color: '#10B981'}}></i>已完成
                                             </span>;
                                           } else if (hasSubtasks && now <= deadline) {
                                             return <span style={{
-                                              color: '#fff',
-                                              background: '#3B82F6',
-                                              borderRadius: '999px',
-                                              padding: '2px 12px',
-                                              fontWeight: 600,
-                                              fontSize: '12px',
                                               display: 'inline-flex',
                                               alignItems: 'center',
-                                              gap: '6px',
-                                              minHeight: '22px',
-                                              minWidth: '44px',
-                                              userSelect: 'none'
+                                              gap: '4px',
+                                              fontWeight: 600,
+                                              fontSize: '11px',
+                                              color: '#3B82F6',
+                                              lineHeight: 1,
+                                              userSelect: 'none',
+                                              background: 'none',
+                                              border: 'none',
+                                              padding: 0
                                             }}>
-                                              <i className="fa-regular fa-clock" style={{fontSize: '14px'}}></i>进行中
+                                              <i className="fa-regular fa-clock" style={{fontSize: '13px', color: '#3B82F6'}}></i>进行中
                                             </span>;
                                           } else if (hasSubtasks && now > deadline) {
                                             return <span style={{
-                                              color: '#fff',
-                                              background: '#EF4444',
-                                              borderRadius: '999px',
-                                              padding: '2px 12px',
-                                              fontWeight: 600,
-                                              fontSize: '12px',
                                               display: 'inline-flex',
                                               alignItems: 'center',
-                                              gap: '6px',
-                                              minHeight: '22px',
-                                              minWidth: '44px',
-                                              userSelect: 'none'
+                                              gap: '4px',
+                                              fontWeight: 600,
+                                              fontSize: '11px',
+                                              color: '#EF4444',
+                                              lineHeight: 1,
+                                              userSelect: 'none',
+                                              background: 'none',
+                                              border: 'none',
+                                              padding: 0
                                             }}>
-                                              <i className="fa-regular fa-circle-xmark" style={{fontSize: '14px'}}></i>未完成
+                                              <i className="fa-regular fa-circle-xmark" style={{fontSize: '13px', color: '#EF4444'}}></i>未完成
                                             </span>;
                                           } else {
                                             return null;
