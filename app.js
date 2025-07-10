@@ -196,12 +196,16 @@ function App() {
 
     const handleTaskEdit = async (taskId, updatedData) => {
       try {
-        const updatedTasks = tasks.map(task => 
-          task.id === taskId || task.objectId === taskId ? { ...task, ...updatedData } : task
-        );
-        setTasks(updatedTasks);
+        const updatedTasks = tasks.map(task => {
+          if ((task.id && task.id === taskId) || (task.objectId && task.objectId === taskId)) {
+            return { ...task, ...updatedData };
+          }
+          return task;
+        });
+        setTasks([...updatedTasks]); // 强制新数组引用，确保刷新
         saveTasksToStorage(updatedTasks);
-        console.log('任务更新成功:', taskId, updatedData);
+        const updatedTask = updatedTasks.find(t => (t.id === taskId || t.objectId === taskId));
+        console.log('任务更新成功:', taskId, updatedData, '最新subtasks:', updatedTask?.subtasks);
       } catch (error) {
         console.error('任务更新失败:', error);
       }
