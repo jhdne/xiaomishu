@@ -6,6 +6,11 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
       startDate: '',
       endDate: ''
     });
+    // 本地错误和处理状态
+    const [error, setError] = React.useState('');
+    const [localProcessing, setLocalProcessing] = React.useState(false);
+    // invokeAIAgent 兜底
+    const aiAgent = typeof window !== 'undefined' && window.invokeAIAgent ? window.invokeAIAgent : async () => [];
 
     const [showAddCategory, setShowAddCategory] = React.useState(false);
     const [newCategoryName, setNewCategoryName] = React.useState('');
@@ -294,10 +299,10 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
             <button
               type="button"
               className="btn btn-primary w-1/2"
-              disabled={isProcessing}
+              disabled={isProcessing || localProcessing}
               onClick={async (e) => {
                 e.preventDefault();
-                // 校验字段与formData结构一致
+                console.log('按钮已点击-直接提交', formData);
                 if (!formData.description || !formData.category || !formData.startDate || !formData.endDate) {
                   alert('请填写完整的任务信息');
                   return;
@@ -306,18 +311,17 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
                   alert('开始时间不能晚于结束时间');
                   return;
                 }
-                setError && setError('');
-                setIsProcessing && setIsProcessing(true);
+                setError('');
+                setLocalProcessing(true);
                 try {
-                  // 自动生成title字段
                   const autoTitle = formData.description.length > 20 
                     ? formData.description.substring(0, 20) + '...'
                     : formData.description;
                   await onTaskCreate({ ...formData, title: autoTitle });
                 } catch (err) {
-                  setError && setError(err.message || '添加失败');
+                  setError(err.message || '添加失败');
                 } finally {
-                  setIsProcessing && setIsProcessing(false);
+                  setLocalProcessing(false);
                 }
               }}
             >
@@ -325,11 +329,11 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
             </button>
             <button
               type="button"
-              className={`btn btn-secondary w-1/2 ${isProcessing ? 'loading' : ''}`}
-              disabled={isProcessing}
+              className={`btn btn-secondary w-1/2 ${isProcessing || localProcessing ? 'loading' : ''}`}
+              disabled={isProcessing || localProcessing}
               onClick={async (e) => {
                 e.preventDefault();
-                // 校验字段与formData结构一致
+                console.log('按钮已点击-AI优化提交', formData);
                 if (!formData.description || !formData.category || !formData.startDate || !formData.endDate) {
                   alert('请填写完整的任务信息');
                   return;
@@ -338,21 +342,20 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
                   alert('开始时间不能晚于结束时间');
                   return;
                 }
-                setError && setError('');
-                setIsProcessing && setIsProcessing(true);
+                setError('');
+                setLocalProcessing(true);
                 try {
-                  // 自动生成title字段
                   const autoTitle = formData.description.length > 20 
                     ? formData.description.substring(0, 20) + '...'
                     : formData.description;
                   // 调用AI拆解逻辑
-                  const aiResult = await invokeAIAgent(autoTitle, formData.category, formData.endDate);
+                  const aiResult = await aiAgent(autoTitle, formData.category, formData.endDate);
                   const subtasks = aiResult && Array.isArray(aiResult) ? aiResult : [];
                   await onTaskCreate({ ...formData, title: autoTitle, subtasks });
                 } catch (err) {
-                  setError && setError(err.message || 'AI拆解失败');
+                  setError(err.message || 'AI拆解失败');
                 } finally {
-                  setIsProcessing && setIsProcessing(false);
+                  setLocalProcessing(false);
                 }
               }}
             >
