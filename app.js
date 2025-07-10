@@ -701,39 +701,42 @@ function App() {
                                         )}
                                       </div>
                                     </div>
-                                    {task.subtasks.map((subtask, index) => {
+                                    {task.subtasks && Array.isArray(task.subtasks) && task.subtasks.map((subtask, index) => {
                                       const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
-                                        const isEditing = subtask.editing;
-                                        const isDragging = draggedSubtask && draggedSubtask.taskId === task.objectId && draggedSubtask.subtaskIndex === index;
-                                        const isDragOver = dragOverIndex === index;
+                                      const isObj = typeof subtask === 'object' && subtask !== null;
+                                      const name = isObj ? subtask.name : subtask;
+                                      const date = isObj ? subtask.date : task.deadline;
+                                      const isEditing = isObj && subtask.editing;
+                                      const isDragging = draggedSubtask && draggedSubtask.taskId === task.objectId && draggedSubtask.subtaskIndex === index;
+                                      const isDragOver = dragOverIndex === index;
                                       return (
-                                          <div 
-                                            key={index} 
-                                            draggable={!isEditing}
-                                            onDragStart={(e) => handleDragStart(e, task.objectId, index)}
-                                            onDragOver={(e) => handleDragOver(e, index)}
-                                            onDragLeave={handleDragLeave}
-                                            onDrop={(e) => handleDrop(e, task.objectId, index)}
-                                            onDragEnd={handleDragEnd}
-                                            style={{
-                                              fontSize: '11px', 
-                                              color: '#6c757d', 
-                                              marginLeft: '8px', 
-                                              marginBottom: '2px', 
-                                              display: 'flex', 
-                                              alignItems: 'center', 
-                                              gap: '4px', 
-                                              flexWrap: 'wrap',
-                                              padding: '4px 8px',
-                                              borderRadius: '4px',
-                                              cursor: isEditing ? 'default' : 'grab',
-                                              backgroundColor: isDragging ? '#f8f9fa' : isDragOver ? '#e9ecef' : 'transparent',
-                                              border: isDragOver ? '2px dashed #aa96da' : '1px solid transparent',
-                                              opacity: isDragging ? 0.5 : 1,
-                                              transition: 'all 0.2s ease',
-                                              transform: isDragging ? 'rotate(2deg)' : 'none'
-                                            }}
-                                          >
+                                        <div 
+                                          key={index} 
+                                          draggable={!isEditing}
+                                          onDragStart={(e) => handleDragStart(e, task.objectId, index)}
+                                          onDragOver={(e) => handleDragOver(e, index)}
+                                          onDragLeave={handleDragLeave}
+                                          onDrop={(e) => handleDrop(e, task.objectId, index)}
+                                          onDragEnd={handleDragEnd}
+                                          style={{
+                                            fontSize: '11px', 
+                                            color: '#6c757d', 
+                                            marginLeft: '8px', 
+                                            marginBottom: '2px', 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            gap: '4px', 
+                                            flexWrap: 'wrap',
+                                            padding: '4px 8px',
+                                            borderRadius: '4px',
+                                            cursor: isEditing ? 'default' : 'grab',
+                                            backgroundColor: isDragging ? '#f8f9fa' : isDragOver ? '#e9ecef' : 'transparent',
+                                            border: isDragOver ? '2px dashed #aa96da' : '1px solid transparent',
+                                            opacity: isDragging ? 0.5 : 1,
+                                            transition: 'all 0.2s ease',
+                                            transform: isDragging ? 'rotate(2deg)' : 'none'
+                                          }}
+                                        >
                                           <span style={{fontWeight: '500', color: '#495057'}}>{circledNumbers[index] || `⑩+${index-9}`}</span>
                                           {!isEditing && (
                                             <div 
@@ -752,70 +755,70 @@ function App() {
                                               ⋮⋮
                                             </div>
                                           )}
-                                            {isEditing ? (
-                                              <>
-                                                <input
-                                                  type="text"
-                                                  value={subtask.name}
-                                                  autoFocus
-                                                  onChange={e => {
-                                                    const updated = [...task.subtasks];
-                                                    updated[index] = { ...subtask, name: e.target.value };
-                                                    handleTaskEdit(task.objectId, { subtasks: updated });
-                                                  }}
-                                                  style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', minWidth: '60px', marginRight: '4px'}}
-                                                />
-                                                <input
-                                                  type="date"
-                                                  value={subtask.date || task.deadline}
-                                                  onChange={e => {
-                                                    const updated = [...task.subtasks];
-                                                    updated[index] = { ...subtask, date: e.target.value };
-                                                    handleTaskEdit(task.objectId, { subtasks: updated });
-                                                  }}
-                                                  style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', marginLeft: '4px'}}
-                                                />
-                                                <button
-                                                  onClick={() => {
-                                                    const updated = [...task.subtasks];
-                                                    updated[index] = { ...subtask, editing: false };
-                                                    handleTaskEdit(task.objectId, { subtasks: updated });
-                                                  }}
-                                                  style={{background: '#aa96da', color: '#fff', border: 'none', borderRadius: '4px', padding: '2px 8px', marginLeft: '4px', fontSize: '11px', cursor: 'pointer'}}
-                                                >保存</button>
-                                              </>
-                                            ) : (
-                                              <>
-                                                <span style={{flex: 1, wordBreak: 'break-all', whiteSpace: 'pre-line'}}>{subtask.name}</span>
-                                                <span
-                                                  style={{color: '#6c757d', minWidth: '70px', cursor: 'pointer'}}
-                                                  onClick={e => {
-                                                    e.stopPropagation();
-                                                    const updated = [...task.subtasks];
-                                                    updated[index] = { ...subtask, editing: true };
-                                                    handleTaskEdit(task.objectId, { subtasks: updated });
-                                                  }}
-                                                  tabIndex={0}
-                                                >
-                                                  {subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
-                                          </span>
-                                          <button
-                                                  onClick={e => {
-                                              e.stopPropagation();
-                                                    const updated = [...task.subtasks];
-                                                    updated[index] = { ...subtask, editing: true };
-                                                    handleTaskEdit(task.objectId, { subtasks: updated });
-                                                  }}
-                                                  style={{background: '#fff', border: '1px solid #aa96da', color: '#aa96da', borderRadius: '50%', width: '16px', height: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginRight: '4px', transition: 'background 0.2s, color 0.2s', fontSize: '8px'}}
-                                                  aria-label="编辑子任务"
-                                                  tabIndex={0}
-                                                  onMouseOver={e => { e.currentTarget.style.background = '#aa96da'; e.currentTarget.style.color = '#fff'; }}
-                                                  onMouseOut={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#aa96da'; }}
-                                                >
-                                                  <span style={{fontSize: '8px'}}>✏️</span>
-                                          </button>
-                                              </>
-                                            )}
+                                          {isEditing ? (
+                                            <>
+                                              <input
+                                                type="text"
+                                                value={name}
+                                                autoFocus
+                                                onChange={e => {
+                                                  const updated = [...task.subtasks];
+                                                  updated[index] = { ...(isObj ? subtask : {}), name: e.target.value };
+                                                  handleTaskEdit(task.objectId, { subtasks: updated });
+                                                }}
+                                                style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', minWidth: '60px', marginRight: '4px'}}
+                                              />
+                                              <input
+                                                type="date"
+                                                value={date}
+                                                onChange={e => {
+                                                  const updated = [...task.subtasks];
+                                                  updated[index] = { ...(isObj ? subtask : {}), date: e.target.value };
+                                                  handleTaskEdit(task.objectId, { subtasks: updated });
+                                                }}
+                                                style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', marginLeft: '4px'}}
+                                              />
+                                              <button
+                                                onClick={() => {
+                                                  const updated = [...task.subtasks];
+                                                  updated[index] = { ...(isObj ? subtask : {}), editing: false };
+                                                  handleTaskEdit(task.objectId, { subtasks: updated });
+                                                }}
+                                                style={{background: '#aa96da', color: '#fff', border: 'none', borderRadius: '4px', padding: '2px 8px', marginLeft: '4px', fontSize: '11px', cursor: 'pointer'}}
+                                              >保存</button>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <span style={{flex: 1, wordBreak: 'break-all', whiteSpace: 'pre-line'}}>{name}</span>
+                                              <span
+                                                style={{color: '#6c757d', minWidth: '70px', cursor: 'pointer'}}
+                                                onClick={e => {
+                                                  e.stopPropagation();
+                                                  const updated = [...task.subtasks];
+                                                  updated[index] = { ...(isObj ? subtask : {}), editing: true };
+                                                  handleTaskEdit(task.objectId, { subtasks: updated });
+                                                }}
+                                                tabIndex={0}
+                                              >
+                                                {date ? new Date(date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
+                                              </span>
+                                              <button
+                                                onClick={e => {
+                                                  e.stopPropagation();
+                                                  const updated = [...task.subtasks];
+                                                  updated[index] = { ...(isObj ? subtask : {}), editing: true };
+                                                  handleTaskEdit(task.objectId, { subtasks: updated });
+                                                }}
+                                                style={{background: '#fff', border: '1px solid #aa96da', color: '#aa96da', borderRadius: '50%', width: '16px', height: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginRight: '4px', transition: 'background 0.2s, color 0.2s', fontSize: '8px'}}
+                                                aria-label="编辑子任务"
+                                                tabIndex={0}
+                                                onMouseOver={e => { e.currentTarget.style.background = '#aa96da'; e.currentTarget.style.color = '#fff'; }}
+                                                onMouseOut={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#aa96da'; }}
+                                              >
+                                                <span style={{fontSize: '8px'}}>✏️</span>
+                                              </button>
+                                            </>
+                                          )}
                                           <button
                                             onClick={(e) => {
                                               e.stopPropagation();
@@ -827,7 +830,7 @@ function App() {
                                               }
                                             }}
                                             style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '2px'}}
-                                              aria-label="删除子任务"
+                                            aria-label="删除子任务"
                                           >
                                             <div className="icon-x text-xs"></div>
                                           </button>
