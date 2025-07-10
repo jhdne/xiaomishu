@@ -360,7 +360,17 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
                   // 2. 智能分配
                   const schedule = await (window.aiAgent?.scheduleTask?.(taskObj, decomposition) ?? { schedule: decomposition.subtasks.map((name, i) => ({ name, date: formData.endDate, completed: false, priority: i + 1 })) });
                   console.log('AI分配结果:', schedule);
-                  const subtasks = schedule.schedule || decomposition.subtasks.map((name, i) => ({ name, date: formData.endDate, completed: false, priority: i + 1 }));
+                  // 保证每个子任务结构完整
+                  const subtasks = (schedule.schedule || decomposition.subtasks.map((name, i) => ({ name, date: formData.endDate, completed: false, priority: i + 1 })))
+                    .map((subtask, i) => ({
+                      name: subtask.name || (typeof subtask === 'string' ? subtask : ''),
+                      date: subtask.date || formData.endDate,
+                      completed: typeof subtask.completed === 'boolean' ? subtask.completed : false,
+                      priority: typeof subtask.priority === 'number' ? subtask.priority : i + 1,
+                      originalText: subtask.originalText || subtask.name || (typeof subtask === 'string' ? subtask : ''),
+                      estimatedTime: typeof subtask.estimatedTime === 'number' ? subtask.estimatedTime : 60,
+                      workload: subtask.workload || 'medium'
+                    }));
                   await onTaskCreate({ ...formData, title: autoTitle, subtasks });
                 } catch (err) {
                   setError(err.message || 'AI拆解失败');
