@@ -601,7 +601,7 @@ function App() {
                                       />
                                     ) : (
                                       <>
-                                        <span>{safeToLocaleDateString(task.deadline)}</span>
+                                        <span>{safeToLocaleDateString(task.deadline) || '无截止时间'}</span>
                                         <button
                                           onClick={e => { e.stopPropagation(); handleTaskEdit(task.objectId, { editingDeadline: true }); }}
                                           style={{marginLeft: '4px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}}
@@ -997,7 +997,7 @@ function App() {
                                         />
                                       ) : (
                                         <>
-                                          <span>{safeToLocaleDateString(task.deadline)}</span>
+                                          <span>{safeToLocaleDateString(task.deadline) || '无截止时间'}</span>
                                           <button
                                             onClick={e => { e.stopPropagation(); handleTaskEdit(task.objectId, { editingDeadline: true }); }}
                                             style={{marginLeft: '4px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}}
