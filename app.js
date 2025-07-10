@@ -43,6 +43,17 @@ function formatLocalDate(date) {
   return `${year}-${month}-${day}`;
 }
 
+// 安全日期格式化，防止非法日期导致崩溃
+function safeToLocaleDateString(date) {
+  try {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString();
+  } catch {
+    return '';
+  }
+}
+
 // localStorage持久化工具
 function saveTasksToStorage(tasks) {
   try {
@@ -590,7 +601,7 @@ function App() {
                                       />
                                     ) : (
                                       <>
-                                        <span>{new Date(task.deadline).toLocaleDateString()}</span>
+                                        <span>{safeToLocaleDateString(task.deadline)}</span>
                                         <button
                                           onClick={e => { e.stopPropagation(); handleTaskEdit(task.objectId, { editingDeadline: true }); }}
                                           style={{marginLeft: '4px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}}
@@ -800,7 +811,7 @@ function App() {
                                                 }}
                                                 tabIndex={0}
                                               >
-                                                {date ? new Date(date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
+                                                {safeToLocaleDateString(date || task.deadline)}
                                               </span>
                                               <button
                                                 onClick={e => {
@@ -986,7 +997,7 @@ function App() {
                                         />
                                       ) : (
                                         <>
-                                          <span>{new Date(task.deadline).toLocaleDateString()}</span>
+                                          <span>{safeToLocaleDateString(task.deadline)}</span>
                                           <button
                                             onClick={e => { e.stopPropagation(); handleTaskEdit(task.objectId, { editingDeadline: true }); }}
                                             style={{marginLeft: '4px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}}
@@ -1193,7 +1204,7 @@ function App() {
                                                     }}
                                                     tabIndex={0}
                                                   >
-                                                    {subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
+                                                    {safeToLocaleDateString(subtask.date || task.deadline)}
                                                   </span>
                                                   <button
                                                     onClick={e => {
@@ -1363,7 +1374,7 @@ function App() {
                                         <div style={{fontWeight: '500'}}>{taskIndex + 1}</div>
                                         <div style={{fontWeight: '500'}}>{task.title}</div>
                                         <div style={{color: '#6c757d', fontSize: '12px'}}>
-                                          {new Date(task.deadline).toISOString().split('T')[0]}
+                                          {safeToLocaleDateString(task.deadline)}
                                         </div>
                                         {(() => {
                                           const now = new Date();
@@ -1434,7 +1445,7 @@ function App() {
                                                 <span style={{fontWeight: '500', color: '#495057'}}>{circledNumbers[index] || `⑩+${index-9}`}</span>
                                                 <span style={{flex: 1, wordBreak: 'break-all', whiteSpace: 'pre-line'}}>{typeof subtask === 'object' ? subtask.name : subtask}</span>
                                                 <span style={{color: '#6c757d', minWidth: '70px'}}>
-                                                  {subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
+                                                  {safeToLocaleDateString(subtask.date || task.deadline)}
                                                 </span>
                                               </div>
                                             );
