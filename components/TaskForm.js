@@ -289,51 +289,79 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={isProcessing}
-            style={{
-              width: '100%',
-              height: '48px',
-              background: isProcessing ? '#bdc3c7' : '#aa96da',
-              color: 'white',
-              border: 'none',
-              borderRadius: '10px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: isProcessing ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              transition: 'all 300ms ease',
-              boxShadow: isProcessing ? 'none' : '0 4px 15px rgba(170, 150, 218, 0.3)'
-            }}
-            onMouseOver={(e) => {
-              if (!isProcessing) {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 20px rgba(52, 152, 219, 0.4)';
-              }
-            }}
-            onMouseOut={(e) => {
-              if (!isProcessing) {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 15px rgba(52, 152, 219, 0.3)';
-              }
-            }}
-          >
-            {isProcessing ? (
-              <>
-                <div className="icon-loader-2 text-lg animate-spin"></div>
-                AI拆解中...
-              </>
-            ) : (
-              <>
-                <div className="icon-zap text-lg"></div>
-                AI拆解优化
-              </>
-            )}
-          </button>
+          {/* 分段按钮提交区 */}
+          <div className="btn-group w-full mt-4">
+            <button
+              type="button"
+              className="btn btn-primary w-1/2"
+              disabled={isProcessing}
+              onClick={async (e) => {
+                e.preventDefault();
+                // 表单校验
+                if (!formData.description || !formData.startDate || !formData.endDate) {
+                  alert('请填写完整的任务信息');
+                  return;
+                }
+                if (new Date(formData.startDate) > new Date(formData.endDate)) {
+                  alert('开始时间不能晚于结束时间');
+                  return;
+                }
+                const autoTitle = formData.description.length > 20 
+                  ? formData.description.substring(0, 20) + '...' 
+                  : formData.description;
+                
+                setIsProcessing(true);
+                try {
+                  await onTaskCreate({
+                    ...formData,
+                    title: autoTitle,
+                    deadline: formData.endDate,
+                    useAI: true // 默认使用AI拆解
+                  });
+                } catch (err) {
+                  alert(err.message || '添加失败');
+                } finally {
+                  setIsProcessing(false);
+                }
+              }}
+            >
+              直接提交
+            </button>
+            <button
+              type="button"
+              className={`btn btn-secondary w-1/2 ${isProcessing ? 'loading' : ''}`}
+              disabled={isProcessing}
+              onClick={async (e) => {
+                e.preventDefault();
+                // 表单校验
+                if (!formData.description || !formData.startDate || !formData.endDate) {
+                  alert('请填写完整的任务信息');
+                  return;
+                }
+                if (new Date(formData.startDate) > new Date(formData.endDate)) {
+                  alert('开始时间不能晚于结束时间');
+                  return;
+                }
+                const autoTitle = formData.description.length > 20 
+                  ? formData.description.substring(0, 20) + '...' 
+                  : formData.description;
+                
+                setIsProcessing(true);
+                try {
+                  // 调用AI拆解逻辑
+                  const aiResult = await invokeAIAgent(formData.description, formData.category, formData.endDate);
+                  const subtasks = aiResult && Array.isArray(aiResult) ? aiResult : [];
+                  await onTaskCreate({ ...formData, title: autoTitle, deadline: formData.endDate, subtasks });
+                } catch (err) {
+                  alert(err.message || 'AI拆解失败');
+                } finally {
+                  setIsProcessing(false);
+                }
+              }}
+            >
+              AI优化提交
+            </button>
+          </div>
         </form>
       </div>
     );
