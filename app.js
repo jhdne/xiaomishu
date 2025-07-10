@@ -1360,9 +1360,9 @@ function App() {
                                         </div>
                                         {(() => {
                                           const now = new Date();
-                                          const deadline = new Date(task.deadline);
                                           const hasSubtasks = Array.isArray(task.subtasks) && task.subtasks.length > 0;
-                                          if (!hasSubtasks) {
+                                          // 修正：没有子任务时直接视为已完成
+                                          if (!task.subtasks || task.subtasks.length === 0) {
                                             return <span style={{
                                               display: 'inline-flex',
                                               alignItems: 'center',
@@ -1378,7 +1378,7 @@ function App() {
                                             }}>
                                               <i className="fa-regular fa-circle-check" style={{fontSize: '13px', color: '#10B981'}}></i>已完成
                                             </span>;
-                                          } else if (hasSubtasks && now <= deadline) {
+                                          } else if (hasSubtasks && now <= new Date(task.deadline)) {
                                             return <span style={{
                                               display: 'inline-flex',
                                               alignItems: 'center',
@@ -1394,7 +1394,7 @@ function App() {
                                             }}>
                                               <i className="fa-regular fa-clock" style={{fontSize: '13px', color: '#3B82F6'}}></i>进行中
                                             </span>;
-                                          } else if (hasSubtasks && now > deadline) {
+                                          } else if (hasSubtasks && now > new Date(task.deadline)) {
                                             return <span style={{
                                               display: 'inline-flex',
                                               alignItems: 'center',
