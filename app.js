@@ -148,7 +148,8 @@ function App() {
           ...taskData,
           createdAt: new Date().toISOString(),
           status: '待分配',
-          completed: false
+          completed: false,
+          deadline: taskData.deadline || taskData.endDate || '',
         };
 
         if (taskData.useAI) {
