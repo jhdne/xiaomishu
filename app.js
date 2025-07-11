@@ -120,6 +120,19 @@ function App() {
       }
     }, []);
 
+    // 监听删除确认状态变化，强制重新渲染
+    React.useEffect(() => {
+      const handleDeleteConfirmStateChanged = () => {
+        setTasks([...tasks]); // 强制重新渲染
+      };
+      
+      window.addEventListener('deleteConfirmStateChanged', handleDeleteConfirmStateChanged);
+      
+      return () => {
+        window.removeEventListener('deleteConfirmStateChanged', handleDeleteConfirmStateChanged);
+      };
+    }, [tasks]);
+
     const loadTasks = async () => {
       try {
         const response = await trickleListObjects('task', 100, true);

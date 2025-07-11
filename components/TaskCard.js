@@ -2,9 +2,11 @@ const React = window.React;
 
 function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
   try {
-    // 状态管理删除确认显示
-    const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
-
+    // 使用全局变量管理删除确认状态
+    if (!window.deleteConfirmStates) {
+      window.deleteConfirmStates = {};
+    }
+    
     const getCategoryLabel = (category) => {
       const categoryMap = {
         '工作': 'work',
@@ -29,19 +31,29 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
 
     // 处理删除按钮点击，显示确认框
     const handleDeleteClick = () => {
-      setShowDeleteConfirm(true);
+      window.deleteConfirmStates[task.objectId] = true;
+      // 强制重新渲染
+      const event = new Event('deleteConfirmStateChanged');
+      window.dispatchEvent(event);
     };
 
     // 处理确认删除
     const handleConfirmDelete = () => {
       onDelete(task.objectId);
-      setShowDeleteConfirm(false);
+      window.deleteConfirmStates[task.objectId] = false;
+      const event = new Event('deleteConfirmStateChanged');
+      window.dispatchEvent(event);
     };
 
     // 处理取消删除
     const handleCancelDelete = () => {
-      setShowDeleteConfirm(false);
+      window.deleteConfirmStates[task.objectId] = false;
+      const event = new Event('deleteConfirmStateChanged');
+      window.dispatchEvent(event);
     };
+
+    // 检查当前任务是否显示确认框
+    const showDeleteConfirm = window.deleteConfirmStates[task.objectId] || false;
 
     return (
       <div className="card" data-name="taskCard" data-file="components/TaskCard.js" style={{borderLeft: `4px solid var(--brand-color)`}}>
