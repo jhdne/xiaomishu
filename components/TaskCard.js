@@ -372,3 +372,5 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
     return null;
   }
 }
+
+export default TaskCard;
