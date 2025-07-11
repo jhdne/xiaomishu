@@ -855,9 +855,7 @@ function App() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  if (confirm('确定要删除整个任务吗？')) {
-                                    handleTaskDelete(task.objectId);
-                                  }
+                                  handleTaskDelete(task.objectId);
                                 }}
                                 style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px 8px'}}
                               >
@@ -1248,9 +1246,7 @@ function App() {
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      if (confirm('确定要删除整个任务吗？')) {
-                                        handleTaskDelete(task.objectId);
-                                      }
+                                      handleTaskDelete(task.objectId);
                                     }}
                                     style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px 8px'}}
                                   >
