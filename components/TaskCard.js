@@ -2,8 +2,8 @@ const React = window.React;
 
 function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
   try {
-    // 创建ref来引用popover容器
-    const popoverRef = React.useRef(null);
+    // 状态管理删除确认显示
+    const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
 
     const getCategoryLabel = (category) => {
       const categoryMap = {
@@ -27,11 +27,20 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
       return imageMap[category] || '其它';
     };
 
-    // 处理删除按钮点击，聚焦popover以触发显示
+    // 处理删除按钮点击，显示确认框
     const handleDeleteClick = () => {
-      if (popoverRef.current) {
-        popoverRef.current.focus();
-      }
+      setShowDeleteConfirm(true);
+    };
+
+    // 处理确认删除
+    const handleConfirmDelete = () => {
+      onDelete(task.objectId);
+      setShowDeleteConfirm(false);
+    };
+
+    // 处理取消删除
+    const handleCancelDelete = () => {
+      setShowDeleteConfirm(false);
     };
 
     return (
@@ -40,38 +49,64 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
           <h3 style={{fontSize: '16px', fontWeight: '400', margin: 0}}>{task.title}
             <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
           </h3>
-          {/* DaisyUI Popover 删除确认 */}
-          <div className="popover popover-bottom" ref={popoverRef} tabIndex={0} style={{display: 'inline-block'}}>
+          {/* 删除确认框 */}
+          {showDeleteConfirm ? (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 10px',
+              border: '2px solid #dc3545',
+              borderRadius: '6px',
+              backgroundColor: '#fff',
+              boxShadow: '0 2px 8px rgba(220, 53, 69, 0.2)'
+            }}>
+              <span style={{
+                fontSize: '12px',
+                color: '#333',
+                whiteSpace: 'nowrap'
+              }}>
+                确定删除整个任务？
+              </span>
+              <div style={{display: 'flex', gap: '4px'}}>
+                <button
+                  onClick={handleConfirmDelete}
+                  style={{
+                    padding: '2px 8px',
+                    fontSize: '11px',
+                    backgroundColor: '#dc3545',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '3px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  确定
+                </button>
+                <button
+                  onClick={handleCancelDelete}
+                  style={{
+                    padding: '2px 8px',
+                    fontSize: '11px',
+                    backgroundColor: '#6c757d',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '3px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  取消
+                </button>
+              </div>
+            </div>
+          ) : (
             <button
-              className="btn btn-error btn-sm"
               style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px'}}
-              tabIndex={0}
               onClick={handleDeleteClick}
             >
               <div className="icon-trash text-sm"></div>
             </button>
-            <div className="popover-content bg-base-100 shadow-xl rounded-lg p-3 border border-error/20" style={{minWidth: '200px', maxWidth: '250px'}}>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="icon-alert-triangle text-error text-lg"></div>
-                <span className="text-sm font-medium text-base-content">删除任务</span>
-              </div>
-              <span className="block text-sm text-base-content/70 mb-3">删除后无法恢复，确定要删除吗？</span>
-              <div className="flex gap-2 justify-end">
-                <button 
-                  className="btn btn-ghost btn-xs" 
-                  onClick={e => e.currentTarget.closest('.popover').blur()}
-                >
-                  取消
-                </button>
-                <button 
-                  className="btn btn-error btn-xs" 
-                  onClick={() => onDelete(task.objectId)}
-                >
-                  删除
-                </button>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
         
         <div style={{marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center'}}>
