@@ -2,26 +2,9 @@ const React = window.React;
 
 function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
   try {
-    // 删除确认状态
-    const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
-    const deleteConfirmRef = React.useRef(null);
-
-    // 点击外部区域关闭确认框
-    React.useEffect(() => {
-      const handleClickOutside = (event) => {
-        if (deleteConfirmRef.current && !deleteConfirmRef.current.contains(event.target)) {
-          setShowDeleteConfirm(false);
-        }
-      };
-
-      if (showDeleteConfirm) {
-        document.addEventListener('mousedown', handleClickOutside);
-      }
-
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }, [showDeleteConfirm]);
+    const [showDeleteModal, setShowDeleteModal] = React.useState(false);
+    // 创建ref来引用popover容器
+    const popoverRef = React.useRef(null);
 
     const getCategoryLabel = (category) => {
       const categoryMap = {
@@ -45,95 +28,48 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
       return imageMap[category] || '其它';
     };
 
-    // 处理删除确认
-    const handleDeleteConfirm = () => {
-      onDelete(task.objectId);
-      setShowDeleteConfirm(false);
-    };
-
-    // 处理删除按钮点击
+    // 处理删除按钮点击，聚焦popover以触发显示
     const handleDeleteClick = () => {
-      setShowDeleteConfirm(true);
+      if (popoverRef.current) {
+        popoverRef.current.focus();
+      }
     };
 
     return (
       <div className="card" data-name="taskCard" data-file="components/TaskCard.js" style={{borderLeft: `4px solid var(--brand-color)`}}>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
-          <div style={{display: 'flex', alignItems: 'center'}}>
-            <h3 style={{fontSize: '16px', fontWeight: '400', margin: 0}}>{task.title}</h3>
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px'}}>
+          <h3 style={{fontSize: '16px', fontWeight: '400', margin: 0}}>{task.title}
             <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
-          </div>
-          <div style={{ position: 'relative', display: 'inline-block', verticalAlign: 'middle' }} ref={deleteConfirmRef}>
-            {showDeleteConfirm ? (
-              <div style={{
-                minWidth: '180px',
-                background: 'white',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-                padding: '12px',
-                textAlign: 'left'
-              }}>
-                <div style={{ fontSize: 14, color: '#374151', marginBottom: 12, fontWeight: 500 }}>
-                  确定要删除这个任务吗？
-                </div>
-                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          </h3>
+          {/* DaisyUI Modal 删除确认 */}
+          <button
+            className="btn btn-error btn-sm"
+            style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px'}}
+            tabIndex={0}
+            aria-label="删除整个任务"
+            onClick={() => setShowDeleteModal(true)}
+          >
+            <div className="icon-trash text-sm"></div>
+          </button>
+          {/* Modal 弹窗 */}
+          {showDeleteModal && (
+            <div className="modal modal-open" style={{zIndex: 1000}}>
+              <div className="modal-box" style={{maxWidth: '350px'}}>
+                <h3 className="font-bold text-lg mb-4">确定要删除整个任务吗？</h3>
+                <div className="modal-action flex gap-2 justify-end">
                   <button
-                    onClick={() => setShowDeleteConfirm(false)}
-                    style={{
-                      padding: '6px 12px',
-                      fontSize: '12px',
-                      backgroundColor: '#f3f4f6',
-                      color: '#6b7280',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={e => e.target.style.backgroundColor = '#e5e7eb'}
-                    onMouseLeave={e => e.target.style.backgroundColor = '#f3f4f6'}
-                  >
-                    取消
-                  </button>
+                    className="btn btn-error btn-sm"
+                    onClick={() => { onDelete(task.objectId); setShowDeleteModal(false); }}
+                  >确认</button>
                   <button
-                    onClick={handleDeleteConfirm}
-                    style={{
-                      padding: '6px 12px',
-                      fontSize: '12px',
-                      backgroundColor: '#dc2626',
-                      color: 'white',
-                      border: '1px solid #dc2626',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={e => e.target.style.backgroundColor = '#b91c1c'}
-                    onMouseLeave={e => e.target.style.backgroundColor = '#dc2626'}
-                  >
-                    删除
-                  </button>
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => setShowDeleteModal(false)}
+                  >取消</button>
                 </div>
               </div>
-            ) : (
-              <button
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#dc3545',
-                  cursor: 'pointer',
-                  padding: '4px',
-                  borderRadius: '4px',
-                  transition: 'all 0.2s ease'
-                }}
-                onClick={handleDeleteClick}
-                onMouseEnter={e => e.target.style.backgroundColor = '#fef2f2'}
-                onMouseLeave={e => e.target.style.backgroundColor = 'transparent'}
-                aria-label="删除任务"
-              >
-                <i className="fas fa-trash" style={{fontSize: '14px'}}></i>
-              </button>
-            )}
-          </div>
+              <div className="modal-backdrop" onClick={() => setShowDeleteModal(false)}></div>
+            </div>
+          )}
         </div>
         
         <div style={{marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center'}}>
@@ -359,5 +295,3 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
     return null;
   }
 }
-
-export default TaskCard;
