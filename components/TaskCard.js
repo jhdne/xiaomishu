@@ -41,7 +41,7 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
             <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
           </h3>
           {/* DaisyUI Popover 删除确认 */}
-          <div className="popover popover-right" ref={popoverRef} tabIndex={0} style={{display: 'inline-block'}}>
+          <div className="popover popover-bottom" ref={popoverRef} tabIndex={0} style={{display: 'inline-block'}}>
             <button
               className="btn btn-error btn-sm"
               style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px'}}
@@ -50,11 +50,25 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
             >
               <div className="icon-trash text-sm"></div>
             </button>
-            <div className="popover-content bg-base-100 shadow-lg rounded-lg p-4" style={{minWidth: '180px'}}>
-              <span className="block text-sm mb-2">确定要删除整个任务吗</span>
+            <div className="popover-content bg-base-100 shadow-xl rounded-lg p-3 border border-error/20" style={{minWidth: '200px', maxWidth: '250px'}}>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="icon-alert-triangle text-error text-lg"></div>
+                <span className="text-sm font-medium text-base-content">删除任务</span>
+              </div>
+              <span className="block text-sm text-base-content/70 mb-3">删除后无法恢复，确定要删除吗？</span>
               <div className="flex gap-2 justify-end">
-                <button className="btn btn-error btn-xs" onClick={() => onDelete(task.objectId)}>确认</button>
-                <button className="btn btn-ghost btn-xs" onClick={e => e.currentTarget.closest('.popover').blur()}>取消</button>
+                <button 
+                  className="btn btn-ghost btn-xs" 
+                  onClick={e => e.currentTarget.closest('.popover').blur()}
+                >
+                  取消
+                </button>
+                <button 
+                  className="btn btn-error btn-xs" 
+                  onClick={() => onDelete(task.objectId)}
+                >
+                  删除
+                </button>
               </div>
             </div>
           </div>
