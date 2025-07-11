@@ -508,7 +508,7 @@ function App() {
                     <div style={{display: 'flex', justifyContent: 'center'}}>
                       <h1 className="title-serif title-serif-large mb-4">任务列表</h1>
                     </div>
-                    {tasks.filter(task => task.status === '已分配').length === 0 ? (
+                    {tasks.filter(task => task.status !== '已完成').length === 0 ? (
                       <div className="text-center" style={{padding: '32px 16px'}}>
                         <div className="icon-clock text-3xl mb-3" style={{color: '#6c757d'}}></div>
                         <p style={{color: '#6c757d', margin: 0}}>暂无任务</p>
