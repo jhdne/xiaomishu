@@ -519,14 +519,15 @@ function App() {
                           .filter(task => task.status !== '已完成')
                           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                           .map((task, taskIndex) => (
-                          <TaskCard
-                            key={task.objectId}
-                            task={task}
-                            onEdit={handleTaskEdit}
-                            onDelete={handleTaskDelete}
-                            onStatusChange={handleStatusChange}
-                          />
-                        ))}
+                            <div key={task.objectId} className="card" style={{padding: '12px', border: '1px solid #ffc107'}}>
+                              <TaskCard
+                                task={task}
+                                onEdit={handleTaskEdit}
+                                onDelete={handleTaskDelete}
+                                onStatusChange={handleStatusChange}
+                              />
+                            </div>
+                          ))}
                       </div>
                     )}
                   </div>
