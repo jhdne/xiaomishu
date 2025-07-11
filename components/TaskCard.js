@@ -2,6 +2,27 @@ const React = window.React;
 
 function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
   try {
+    // 删除确认状态
+    const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+    const deleteConfirmRef = React.useRef(null);
+
+    // 点击外部区域关闭确认框
+    React.useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (deleteConfirmRef.current && !deleteConfirmRef.current.contains(event.target)) {
+          setShowDeleteConfirm(false);
+        }
+      };
+
+      if (showDeleteConfirm) {
+        document.addEventListener('mousedown', handleClickOutside);
+      }
+
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, [showDeleteConfirm]);
+
     const getCategoryLabel = (category) => {
       const categoryMap = {
         '工作': 'work',
@@ -24,20 +45,15 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
       return imageMap[category] || '其它';
     };
 
-    // 处理删除按钮点击，显示确认框
-    const handleDeleteClick = () => {
-      onEdit(task.objectId, { showDeleteConfirm: true });
-    };
-
-    // 处理确认删除
-    const handleConfirmDelete = () => {
+    // 处理删除确认
+    const handleDeleteConfirm = () => {
       onDelete(task.objectId);
-      onEdit(task.objectId, { showDeleteConfirm: false });
+      setShowDeleteConfirm(false);
     };
 
-    // 处理取消删除
-    const handleCancelDelete = () => {
-      onEdit(task.objectId, { showDeleteConfirm: false });
+    // 处理删除按钮点击
+    const handleDeleteClick = () => {
+      setShowDeleteConfirm(true);
     };
 
     return (
@@ -46,64 +62,92 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
           <h3 style={{fontSize: '16px', fontWeight: '400', margin: 0}}>{task.title}
             <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
           </h3>
-          {/* 删除确认框 */}
-          {task.showDeleteConfirm ? (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '6px 10px',
-              border: '2px solid #dc3545',
-              borderRadius: '6px',
-              backgroundColor: '#fff',
-              boxShadow: '0 2px 8px rgba(220, 53, 69, 0.2)'
-            }}>
-              <span style={{
-                fontSize: '12px',
-                color: '#333',
-                whiteSpace: 'nowrap'
-              }}>
-                确定删除整个任务？
-              </span>
-              <div style={{display: 'flex', gap: '4px'}}>
-                <button
-                  onClick={handleConfirmDelete}
-                  style={{
-                    padding: '2px 8px',
-                    fontSize: '11px',
-                    backgroundColor: '#dc3545',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '3px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  确定
-                </button>
-                <button
-                  onClick={handleCancelDelete}
-                  style={{
-                    padding: '2px 8px',
-                    fontSize: '11px',
-                    backgroundColor: '#6c757d',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '3px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  取消
-                </button>
-              </div>
-            </div>
-          ) : (
+          {/* 删除按钮和确认框 */}
+          <div ref={deleteConfirmRef} style={{position: 'relative', display: 'inline-block'}}>
             <button
-              style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px'}}
+              style={{
+                background: 'none', 
+                border: 'none', 
+                color: '#dc3545', 
+                cursor: 'pointer', 
+                padding: '4px',
+                borderRadius: '4px',
+                transition: 'all 0.2s ease'
+              }}
               onClick={handleDeleteClick}
+              onMouseEnter={e => e.target.style.backgroundColor = '#fef2f2'}
+              onMouseLeave={e => e.target.style.backgroundColor = 'transparent'}
+              aria-label="删除任务"
             >
-              <div className="icon-trash text-sm"></div>
+              <i className="fas fa-trash" style={{fontSize: '14px'}}></i>
             </button>
-          )}
+            
+            {/* 删除确认框 */}
+            {showDeleteConfirm && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                right: '0',
+                zIndex: 1000,
+                backgroundColor: 'white',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+                padding: '12px',
+                minWidth: '200px',
+                marginTop: '4px'
+              }}>
+                <div style={{
+                  fontSize: '14px',
+                  color: '#374151',
+                  marginBottom: '12px',
+                  fontWeight: '500'
+                }}>
+                  确定要删除这个任务吗？
+                </div>
+                <div style={{
+                  display: 'flex',
+                  gap: '8px',
+                  justifyContent: 'flex-end'
+                }}>
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: '12px',
+                      backgroundColor: '#f3f4f6',
+                      color: '#6b7280',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={e => e.target.style.backgroundColor = '#e5e7eb'}
+                    onMouseLeave={e => e.target.style.backgroundColor = '#f3f4f6'}
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={handleDeleteConfirm}
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: '12px',
+                      backgroundColor: '#dc2626',
+                      color: 'white',
+                      border: '1px solid #dc2626',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={e => e.target.style.backgroundColor = '#b91c1c'}
+                    onMouseLeave={e => e.target.style.backgroundColor = '#dc2626'}
+                  >
+                    删除
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         
         <div style={{marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center'}}>

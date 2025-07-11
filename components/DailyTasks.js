@@ -124,16 +124,16 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate, customCategories = [] }
               />
               {/* 动态渲染自定义类别 */}
               {customCategories.map(customCat => (
-                <DailyTaskModule
+              <DailyTaskModule
                   key={customCat.id}
                   title={customCat.name}
                   icon={customCat.icon}
                   tasks={pendingTasks.filter(task => task.category === customCat.name)}
-                  onTaskUpdate={onTaskUpdate}
-                  allTasks={tasks}
-                  selectedDate={selectedDate}
-                  editable={false}
-                />
+                onTaskUpdate={onTaskUpdate}
+                allTasks={tasks}
+                selectedDate={selectedDate}
+                editable={false}
+              />
               ))}
             </div>
 
