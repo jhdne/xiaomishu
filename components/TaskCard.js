@@ -62,14 +62,14 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
           <h3 style={{fontSize: '16px', fontWeight: '400', margin: 0}}>{task.title}
             <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
           </h3>
-          {/* 删除按钮和确认框 */}
-          <div ref={deleteConfirmRef} style={{position: 'relative', display: 'inline-block'}}>
+          {/* 删除按钮和确认框，定位修正 */}
+          <span style={{ position: 'relative', display: 'inline-block', verticalAlign: 'middle' }} ref={deleteConfirmRef}>
             <button
               style={{
-                background: 'none', 
-                border: 'none', 
-                color: '#dc3545', 
-                cursor: 'pointer', 
+                background: 'none',
+                border: 'none',
+                color: '#dc3545',
+                cursor: 'pointer',
                 padding: '4px',
                 borderRadius: '4px',
                 transition: 'all 0.2s ease'
@@ -81,13 +81,11 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
             >
               <i className="fas fa-trash" style={{fontSize: '14px'}}></i>
             </button>
-            
-            {/* 删除确认框 */}
             {showDeleteConfirm && (
               <div style={{
                 position: 'absolute',
                 top: '100%',
-                right: '0',
+                right: 0,
                 zIndex: 1000,
                 backgroundColor: 'white',
                 border: '1px solid #e5e7eb',
@@ -95,7 +93,9 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
                 boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
                 padding: '12px',
                 minWidth: '200px',
-                marginTop: '4px'
+                marginTop: '4px',
+                textAlign: 'left',
+                // border: '2px solid #f87171', // 可选：调试定位时打开
               }}>
                 <div style={{
                   fontSize: '14px',
@@ -147,7 +147,7 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
                 </div>
               </div>
             )}
-          </div>
+          </span>
         </div>
         
         <div style={{marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center'}}>
