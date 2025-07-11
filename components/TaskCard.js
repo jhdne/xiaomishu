@@ -1,5 +1,10 @@
+const React = window.React;
+
 function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
   try {
+    // 创建ref来引用popover容器
+    const popoverRef = React.useRef(null);
+
     const getCategoryLabel = (category) => {
       const categoryMap = {
         '工作': 'work',
@@ -22,6 +27,13 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
       return imageMap[category] || '其它';
     };
 
+    // 处理删除按钮点击，聚焦popover以触发显示
+    const handleDeleteClick = () => {
+      if (popoverRef.current) {
+        popoverRef.current.focus();
+      }
+    };
+
     return (
       <div className="card" data-name="taskCard" data-file="components/TaskCard.js" style={{borderLeft: `4px solid var(--brand-color)`}}>
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px'}}>
@@ -29,11 +41,12 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
             <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
           </h3>
           {/* DaisyUI Popover 删除确认 */}
-          <div className="popover popover-right" tabIndex={0} style={{display: 'inline-block'}}>
+          <div className="popover popover-right" ref={popoverRef} tabIndex={0} style={{display: 'inline-block'}}>
             <button
               className="btn btn-error btn-sm"
               style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px'}}
               tabIndex={0}
+              onClick={handleDeleteClick}
             >
               <div className="icon-trash text-sm"></div>
             </button>
