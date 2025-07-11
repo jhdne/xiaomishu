@@ -64,51 +64,20 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
             <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
           </div>
           <div style={{ position: 'relative', display: 'inline-block', verticalAlign: 'middle' }} ref={deleteConfirmRef}>
-            <button
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#dc3545',
-                cursor: 'pointer',
-                padding: '4px',
-                borderRadius: '4px',
-                transition: 'all 0.2s ease'
-              }}
-              onClick={handleDeleteClick}
-              onMouseEnter={e => e.target.style.backgroundColor = '#fef2f2'}
-              onMouseLeave={e => e.target.style.backgroundColor = 'transparent'}
-              aria-label="删除任务"
-            >
-              <i className="fas fa-trash" style={{fontSize: '14px'}}></i>
-            </button>
-            {showDeleteConfirm && (
+            {showDeleteConfirm ? (
               <div style={{
-                position: 'absolute',
-                top: '100%',
-                right: 0,
-                zIndex: 1000,
-                backgroundColor: 'white',
+                minWidth: '180px',
+                background: 'white',
                 border: '1px solid #e5e7eb',
                 borderRadius: '8px',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
                 padding: '12px',
-                minWidth: '200px',
-                marginTop: '4px',
-                textAlign: 'left',
+                textAlign: 'left'
               }}>
-                <div style={{
-                  fontSize: '14px',
-                  color: '#374151',
-                  marginBottom: '12px',
-                  fontWeight: '500'
-                }}>
+                <div style={{ fontSize: 14, color: '#374151', marginBottom: 12, fontWeight: 500 }}>
                   确定要删除这个任务吗？
                 </div>
-                <div style={{
-                  display: 'flex',
-                  gap: '8px',
-                  justifyContent: 'flex-end'
-                }}>
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                   <button
                     onClick={() => setShowDeleteConfirm(false)}
                     style={{
@@ -145,6 +114,24 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
                   </button>
                 </div>
               </div>
+            ) : (
+              <button
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#dc3545',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  borderRadius: '4px',
+                  transition: 'all 0.2s ease'
+                }}
+                onClick={handleDeleteClick}
+                onMouseEnter={e => e.target.style.backgroundColor = '#fef2f2'}
+                onMouseLeave={e => e.target.style.backgroundColor = 'transparent'}
+                aria-label="删除任务"
+              >
+                <i className="fas fa-trash" style={{fontSize: '14px'}}></i>
+              </button>
             )}
           </div>
         </div>
