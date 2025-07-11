@@ -58,12 +58,12 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
 
     return (
       <div className="card" data-name="taskCard" data-file="components/TaskCard.js" style={{borderLeft: `4px solid var(--brand-color)`}}>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px'}}>
-          <h3 style={{fontSize: '16px', fontWeight: '400', margin: 0}}>{task.title}
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
+          <div style={{display: 'flex', alignItems: 'center'}}>
+            <h3 style={{fontSize: '16px', fontWeight: '400', margin: 0}}>{task.title}</h3>
             <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
-          </h3>
-          {/* 删除按钮和确认框，定位修正 */}
-          <span style={{ position: 'relative', display: 'inline-block', verticalAlign: 'middle' }} ref={deleteConfirmRef}>
+          </div>
+          <div style={{ position: 'relative', display: 'inline-block', verticalAlign: 'middle' }} ref={deleteConfirmRef}>
             <button
               style={{
                 background: 'none',
@@ -95,7 +95,6 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
                 minWidth: '200px',
                 marginTop: '4px',
                 textAlign: 'left',
-                // border: '2px solid #f87171', // 可选：调试定位时打开
               }}>
                 <div style={{
                   fontSize: '14px',
@@ -147,7 +146,7 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
                 </div>
               </div>
             )}
-          </span>
+          </div>
         </div>
         
         <div style={{marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center'}}>
