@@ -2,11 +2,6 @@ const React = window.React;
 
 function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
   try {
-    // 使用全局变量管理删除确认状态
-    if (!window.deleteConfirmStates) {
-      window.deleteConfirmStates = {};
-    }
-    
     const getCategoryLabel = (category) => {
       const categoryMap = {
         '工作': 'work',
@@ -29,31 +24,12 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
       return imageMap[category] || '其它';
     };
 
-    // 处理删除按钮点击，显示确认框
+    // 处理删除按钮点击，显示确认对话框
     const handleDeleteClick = () => {
-      window.deleteConfirmStates[task.objectId] = true;
-      // 强制重新渲染
-      const event = new Event('deleteConfirmStateChanged');
-      window.dispatchEvent(event);
+      if (confirm('确定删除整个任务？')) {
+        onDelete(task.objectId);
+      }
     };
-
-    // 处理确认删除
-    const handleConfirmDelete = () => {
-      onDelete(task.objectId);
-      window.deleteConfirmStates[task.objectId] = false;
-      const event = new Event('deleteConfirmStateChanged');
-      window.dispatchEvent(event);
-    };
-
-    // 处理取消删除
-    const handleCancelDelete = () => {
-      window.deleteConfirmStates[task.objectId] = false;
-      const event = new Event('deleteConfirmStateChanged');
-      window.dispatchEvent(event);
-    };
-
-    // 检查当前任务是否显示确认框
-    const showDeleteConfirm = window.deleteConfirmStates[task.objectId] || false;
 
     return (
       <div className="card" data-name="taskCard" data-file="components/TaskCard.js" style={{borderLeft: `4px solid var(--brand-color)`}}>
@@ -61,64 +37,13 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
           <h3 style={{fontSize: '16px', fontWeight: '400', margin: 0}}>{task.title}
             <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
           </h3>
-          {/* 删除确认框 */}
-          {showDeleteConfirm ? (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '6px 10px',
-              border: '2px solid #dc3545',
-              borderRadius: '6px',
-              backgroundColor: '#fff',
-              boxShadow: '0 2px 8px rgba(220, 53, 69, 0.2)'
-            }}>
-              <span style={{
-                fontSize: '12px',
-                color: '#333',
-                whiteSpace: 'nowrap'
-              }}>
-                确定删除整个任务？
-              </span>
-              <div style={{display: 'flex', gap: '4px'}}>
-                <button
-                  onClick={handleConfirmDelete}
-                  style={{
-                    padding: '2px 8px',
-                    fontSize: '11px',
-                    backgroundColor: '#dc3545',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '3px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  确定
-                </button>
-                <button
-                  onClick={handleCancelDelete}
-                  style={{
-                    padding: '2px 8px',
-                    fontSize: '11px',
-                    backgroundColor: '#6c757d',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '3px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  取消
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px'}}
-              onClick={handleDeleteClick}
-            >
-              <div className="icon-trash text-sm"></div>
-            </button>
-          )}
+          {/* 删除按钮 */}
+          <button
+            style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px'}}
+            onClick={handleDeleteClick}
+          >
+            <div className="icon-trash text-sm"></div>
+          </button>
         </div>
         
         <div style={{marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center'}}>
