@@ -519,7 +519,17 @@ function App() {
                           .filter(task => task.status !== '已完成')
                           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                           .map((task, taskIndex) => (
-                            <div key={task.objectId} className="card" style={{padding: '12px', border: '1px solid #ffc107'}}>
+                            <div
+                              key={task.objectId}
+                              style={{
+                                border: '1px solid #ffc107',
+                                borderRadius: '12px',
+                                marginBottom: '18px',
+                                background: '#fff',
+                                boxShadow: '0 2px 8px rgba(255,193,7,0.06)',
+                                padding: '0'
+                              }}
+                            >
                               <TaskCard
                                 task={task}
                                 onEdit={handleTaskEdit}
