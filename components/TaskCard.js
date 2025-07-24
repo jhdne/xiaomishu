@@ -39,6 +39,30 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px'}}>
           <h3 style={{fontSize: '16px', fontWeight: '400', margin: 0}}>{task.title}
             <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
+            {/* 虚拟人入口 */}
+            <button
+              onClick={() => {
+                // 跳转到虚拟人操作页面，携带任务ID
+                window.location.href = `/virtual-assistant?taskId=${task.objectId}`;
+              }}
+              style={{
+                marginLeft: '8px',
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                border: 'none',
+                backgroundColor: '#f8f9fa',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                padding: 0
+              }}
+              aria-label="我来帮你吧"
+            >
+              <img src="/virtual/虚拟人(欧美）.png" alt="虚拟人" style={{width: '10px', height: '10px', borderRadius: '50%'}} />
+            </button>
+            <span style={{marginLeft: '5px', fontSize: '12px', color: '#6c757d', verticalAlign: 'middle'}}>我来帮你吧</span>
           </h3>
           {/* DaisyUI Popover 删除确认 */}
           <div className="popover popover-right" ref={popoverRef} tabIndex={0} style={{display: 'inline-block'}}>
