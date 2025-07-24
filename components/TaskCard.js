@@ -60,7 +60,7 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
               }}
               aria-label="我来帮你吧"
             >
-              <img src="/virtual/虚拟人(欧美）.png" alt="虚拟人" style={{width: '10px', height: '10px', borderRadius: '50%'}} />
+              <img src="/virtual/虚拟人（亚洲）.png" alt="虚拟人" style={{width: '10px', height: '10px', borderRadius: '50%'}} />
             </button>
             <span style={{marginLeft: '5px', fontSize: '12px', color: '#6c757d', verticalAlign: 'middle'}}>我来帮你吧</span>
           </h3>
