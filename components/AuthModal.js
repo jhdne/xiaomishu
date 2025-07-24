@@ -96,6 +96,4 @@ function AuthModal({ open, onClose, onAuthSuccess }) {
       ) : null}
     </>
   );
-}
-
-export default AuthModal; 
+} 

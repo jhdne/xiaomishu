@@ -221,5 +221,3 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks, selectedD
     return null;
   }
 }
-
-export default DailyTaskModule;
