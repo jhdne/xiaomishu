@@ -84,7 +84,7 @@ const VirtualAssistantPage = () => {
     <div className={cardClass} role="main" aria-label="虚拟人任务操作卡片">
       {/* 虚拟人头像 */}
       <div className={avatarClass}>
-        <img src="/virtual/虚拟人（亚洲）.png" alt="虚拟人头像" className="rounded-full" style={{width: 80, height: 80}} />
+        <img src="virtual/虚拟人（亚洲）.png" alt="虚拟人头像" className="rounded-full" style={{width: 80, height: 80}} />
       </div>
       {/* 任务标题输入框 */}
       <div className="flex flex-col items-center mb-4">
