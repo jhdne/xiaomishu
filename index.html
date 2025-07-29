@@ -18,6 +18,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://resource.trickle.so/vendor_lib/unpkg/lucide-static@0.516.0/font/lucide.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.css" rel="stylesheet" type="text/css" />
 
     <!-- Minimalist Design System -->
     <style type="text/tailwindcss">
@@ -219,10 +220,13 @@
         
         /* 删除状态的子任务样式 */
         .subtask-deleted {
-            color: #888888 !important;
+            color: #555555 !important;
             text-decoration: line-through;
-            opacity: 0.7;
+            opacity: 0.85;
             font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-shadow: 0 0.5px 0 #fff, 0 -0.5px 0 #fff;
         }
         
         /* 标题样式 - 思源宋体 */
@@ -352,6 +356,100 @@
             transform: scaleX(1);
             opacity: 1;
         }
+        
+        /* 子任务输入框动画 */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-10px) scale(0.95);
+            }
+        }
+        
+        .subtask-input-container {
+            animation: slideIn 0.2s ease-out;
+        }
+        
+        .subtask-input-container.hide {
+            animation: slideOut 0.2s ease-in;
+        }
+        
+        /* 拖拽排序样式 */
+        .subtask-draggable {
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        
+        .subtask-draggable:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtask-dragging {
+            opacity: 0.5;
+            transform: rotate(2deg) scale(1.02);
+            z-index: 1000;
+        }
+        
+        .subtask-drag-over {
+            border: 2px dashed #aa96da !important;
+            background-color: #e9ecef !important;
+        }
+        
+        .drag-handle {
+            cursor: grab;
+            transition: color 0.2s ease;
+        }
+        
+        .drag-handle:hover {
+            color: #aa96da;
+        }
+        
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        
+        /* === 类别选择按钮全局样式强覆盖 === */
+        .category-btn,
+        .category-btn:active,
+        .category-btn:focus,
+        .category-btn:hover {
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        .category-btn.selected,
+        .category-btn.selected:active,
+        .category-btn.selected:focus,
+        .category-btn.selected:hover {
+            background-color: #aa96da !important;
+            color: #fff !important;
+            border: 2px solid #aa96da !important;
+        }
+
+        .category-btn:not(.selected),
+        .category-btn:not(.selected):active,
+        .category-btn:not(.selected):focus,
+        .category-btn:not(.selected):hover {
+            background-color: #fff !important;
+            color: #333 !important;
+            border: 1px solid #e0e0e0 !important;
+        }
     }
 
     @layer utilities {
@@ -407,6 +505,7 @@
     <script type="text/babel" src="components/TaskCard.js"></script>
     <script type="text/babel" src="components/Calendar.js"></script>
     <script type="text/babel" src="components/DailyTasks.js"></script>
+    <script type="text/babel" src="components/AuthModal.js"></script>
     <script type="text/babel" src="app.js"></script>
 </body>
 </html>

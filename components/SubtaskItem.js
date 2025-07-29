@@ -71,11 +71,22 @@ function SubtaskItem({ subtask, index, taskId, onEdit, task, editable }) {
         ) : (
           <div className="flex items-center justify-between">
             <div className="flex items-center flex-1">
-              <button onClick={handleToggleComplete} className="mr-2">
-                <div className={`icon-${subtask.completed ? 'check-circle' : 'circle'} text-sm ${subtask.completed ? 'text-green-600' : 'text-gray-400'}`}></div>
+              <button onClick={handleToggleComplete} className="mr-2" aria-label={subtask.completed ? '标记为未完成' : '标记为已完成'} title={subtask.completed ? '标记为未完成' : '标记为已完成'}>
+                {subtask.completed ? (
+                  // 极简勾选圆SVG，线条细，尺寸小
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false" className="text-green-600" style={{display:'block'}}>
+                    <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    <polyline points="5.2,8.5 7.2,10.5 11,6.5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                ) : (
+                  // 极简空心圆SVG，线条细，尺寸小
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false" className="text-gray-400" style={{display:'block'}}>
+                    <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                  </svg>
+                )}
               </button>
               <span className="text-xs text-gray-500 mr-2">{index + 1}.</span>
-              <span className={`flex-1 ${subtask.completed ? 'subtask-deleted' : 'text-gray-700'}`} style={{fontSize:'12px', textAlign:'left', fontWeight:400, display:'block'}}>
+              <span className={`flex-1 ${subtask.completed ? 'subtask-deleted' : 'text-gray-700'}`} style={{fontSize:'12px', textAlign:'left', fontWeight:400, display:'block'}} aria-label={typeof subtask === 'string' ? subtask : subtask.name} title={typeof subtask === 'string' ? subtask : subtask.name}>
                 {typeof subtask === 'string' ? subtask : subtask.name}
               </span>
             </div>

@@ -106,97 +106,88 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
         <div style={{marginTop: '12px'}}>
           <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
             <p style={{fontSize: '14px', fontWeight: '500', margin: 0}}>子步骤:</p>
-            <button
-              onClick={() => onEdit(task.objectId, { showAddSubtask: !task.showAddSubtask })}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--brand-color)',
-                cursor: 'pointer',
-                padding: '4px'
-              }}
-            >
-              <div className="icon-plus text-sm"></div>
-            </button>
-          </div>
-          
-          {task.showAddSubtask && (
-            <div style={{marginBottom: '8px', padding: '8px', backgroundColor: '#f8f9fa', borderRadius: '4px', border: '1px solid #e9ecef'}}>
-              <input
-                type="text"
-                placeholder="添加子任务"
+            <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+              {task.showAddSubtask && (
+                <>
+                  <input
+                    type="text"
+                    placeholder="请添加子任务"
+                    style={{
+                      width: '160px',
+                      padding: '4px 10px',
+                      border: '1.5px solid #aa96da',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      outline: 'none',
+                      marginRight: '4px',
+                      transition: 'border-color 0.2s',
+                      boxShadow: '0 1px 3px rgba(170,150,218,0.07)',
+                    }}
+                    autoFocus
+                    value={task._addSubtaskInputValue || ''}
+                    onChange={e => onEdit(task.objectId, { _addSubtaskInputValue: e.target.value })}
+                    onFocus={e => e.target.style.borderColor = '#3498db'}
+                    onBlur={e => e.target.style.borderColor = '#aa96da'}
+                    aria-label="请输入子任务内容"
+                  />
+                  <button
+                    onClick={() => {
+                      const value = task._addSubtaskInputValue?.trim();
+                      if (value) {
+                        const newSubtask = {
+                          name: value,
+                          date: task.deadline,
+                          completed: false,
+                          originalText: value
+                        };
+                        onEdit(task.objectId, {
+                          subtasks: [...(task.subtasks || []), newSubtask],
+                          showAddSubtask: false,
+                          _addSubtaskInputValue: ''
+                        });
+                      }
+                    }}
+                    style={{
+                      padding: '2px 10px',
+                      fontSize: '12px',
+                      backgroundColor: '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      marginRight: '2px'
+                    }}
+                  >保存</button>
+                  <button
+                    onClick={() => onEdit(task.objectId, { showAddSubtask: false, _addSubtaskInputValue: '' })}
+                    style={{
+                      padding: '2px 10px',
+                      fontSize: '12px',
+                      backgroundColor: '#6c757d',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      marginRight: '2px'
+                    }}
+                  >关闭</button>
+                </>
+              )}
+              <button
+                onClick={() => onEdit(task.objectId, { showAddSubtask: !task.showAddSubtask, _addSubtaskInputValue: '' })}
                 style={{
-                  width: '100%',
-                  padding: '4px 8px',
-                  border: '1px solid #ced4da',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  marginBottom: '4px'
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--brand-color)',
+                  cursor: 'pointer',
+                  padding: '4px'
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && e.target.value.trim()) {
-                    const newSubtask = {
-                      name: e.target.value.trim(),
-                      date: task.deadline,
-                      completed: false,
-                      originalText: e.target.value.trim()
-                    };
-                    onEdit(task.objectId, {
-                      subtasks: [...(task.subtasks || []), newSubtask],
-                      showAddSubtask: false
-                    });
-                    e.target.value = '';
-                  }
-                }}
-                autoFocus
-              />
-              <div style={{display: 'flex', gap: '4px'}}>
-                <button
-                  onClick={(e) => {
-                    const input = e.target.parentElement.previousElementSibling;
-                    if (input.value.trim()) {
-                      const newSubtask = {
-                        name: input.value.trim(),
-                        date: task.deadline,
-                        completed: false,
-                        originalText: input.value.trim()
-                      };
-                      onEdit(task.objectId, {
-                        subtasks: [...(task.subtasks || []), newSubtask],
-                        showAddSubtask: false
-                      });
-                      input.value = '';
-                    }
-                  }}
-                  style={{
-                    padding: '2px 8px',
-                    fontSize: '10px',
-                    backgroundColor: '#28a745',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  确认
-                </button>
-                <button
-                  onClick={() => onEdit(task.objectId, { showAddSubtask: false })}
-                  style={{
-                    padding: '2px 8px',
-                    fontSize: '10px',
-                    backgroundColor: '#6c757d',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  取消
-                </button>
-              </div>
+                aria-label="添加子任务"
+              >
+                <div className="icon-plus text-sm"></div>
+              </button>
             </div>
-          )}
+          </div>
           
           {task.subtasks && task.subtasks.length > 0 && (
             <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>

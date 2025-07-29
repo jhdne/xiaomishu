@@ -87,49 +87,71 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks, selectedD
       <div className="mb-4" data-name="dailyTaskModule" data-file="components/DailyTaskModule.js">
         <div className="text-center mb-3">
           <span className={`category-label category-label-${title === '工作' ? 'work' : title === '生活' ? 'life' : title === '学习' ? 'study' : title === '健康' ? 'health' : 'other'}`}>
-            <div className="category-label-icon" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.2em',
-              width: '50.4px',
-              height: '23px',
-              fontSize: '12px',
-              fontWeight: '500',
-              color: 'white',
-              fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              transition: 'all 0.2s ease',
-              ...(() => {
-                switch (title) {
-                  case '工作':
-                    return { backgroundColor: '#3B82F6', borderRadius: '8px' };
-                  case '生活':
-                    return { backgroundColor: '#FFA500', borderRadius: '20px' };
-                  case '健康':
-                    return { backgroundColor: '#10B981', borderRadius: '8px' };
-                  case '学习':
-                    return { backgroundColor: '#00B4D8', borderRadius: '20px' };
-                  default:
-                    return { backgroundColor: '#808080', borderRadius: '8px' };
-                }
-              })()
-            }}>
-              {(() => {
-                switch (title) {
-                  case '工作':
-                    return <><i className="fas fa-cog" style={{color: 'white', fontSize: '9px'}}></i><span>工作</span></>;
-                  case '生活':
-                    return <><i className="fas fa-home" style={{color: 'white', fontSize: '9px'}}></i><span>生活</span></>;
-                  case '健康':
-                    return <><i className="fas fa-running" style={{color: 'white', fontSize: '9px'}}></i><span>健康</span></>;
-                  case '学习':
-                    return <><i className="fas fa-book" style={{color: 'white', fontSize: '9px'}}></i><span>学习</span></>;
-                  default:
-                    return <><i className="fas fa-question" style={{color: 'white', fontSize: '9px'}}></i><span>其它</span></>;
-                }
-              })()}
-            </div>
+            {(() => {
+              // 根据背景色计算文字颜色，确保足够的对比度
+              const getTextColor = (bgColor) => {
+                // 将十六进制颜色转换为RGB
+                const hex = bgColor.replace('#', '');
+                const r = parseInt(hex.substr(0, 2), 16);
+                const g = parseInt(hex.substr(2, 2), 16);
+                const b = parseInt(hex.substr(4, 2), 16);
+                
+                // 计算亮度
+                const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                
+                // 如果背景色较亮，使用深色文字；否则使用白色文字
+                return brightness > 128 ? '#333333' : 'white';
+              };
+
+              let backgroundColor, icon, textColor;
+              
+              switch (title) {
+                case '工作':
+                  backgroundColor = '#3B82F6';
+                  icon = 'cog';
+                  break;
+                case '生活':
+                  backgroundColor = '#FFA500';
+                  icon = 'home';
+                  break;
+                case '健康':
+                  backgroundColor = '#10B981';
+                  icon = 'running';
+                  break;
+                case '学习':
+                  backgroundColor = '#00B4D8';
+                  icon = 'book';
+                  break;
+                default:
+                  backgroundColor = '#808080';
+                  icon = 'question';
+                  break;
+              }
+              
+              textColor = getTextColor(backgroundColor);
+              
+              return (
+                <div className="category-label-icon" style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.2em',
+                  width: '50.4px',
+                  height: '23px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  color: textColor,
+                  fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                  transition: 'all 0.2s ease',
+                  backgroundColor: backgroundColor,
+                  borderRadius: title === '生活' || title === '学习' ? '20px' : '8px'
+                }}>
+                  <i className={`fas fa-${icon}`} style={{color: textColor, fontSize: '9px'}}></i>
+                  <span>{title}</span>
+                </div>
+              );
+            })()}
             <div style={{ 
               fontFamily: '"Source Han Sans", "思源黑体", sans-serif', 
               color: '#333333', 
@@ -157,7 +179,12 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks, selectedD
                           const isCompleted = typeof subtask === 'object' ? subtask.completed : false;
                           return (
                             <div key={subtaskIndex} className="subtask-item" style={{marginLeft: '20px', marginBottom: '8px', padding: '8px', backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef', display: 'flex', alignItems: 'center', cursor: 'pointer'}} onClick={() => !editable && handleSubtaskToggle(task.objectId, subtaskIndex)}>
-                              <span style={{fontSize: '16px', marginRight: '8px'}}>{isCompleted ? '✔️' : '□'}</span>
+                              <span style={{fontSize: '16px', marginRight: '8px', color: isCompleted ? '#10B981' : '#ccc', display: 'flex', alignItems: 'center'}}>
+                                {isCompleted
+                                  ? <i className="fa-regular fa-circle-check" style={{fontWeight: 400}} aria-label="已完成"></i>
+                                  : <i className="fa-regular fa-circle" aria-label="未完成"></i>
+                                }
+                              </span>
                               <span className={isCompleted ? 'subtask-deleted' : ''} style={{fontSize: '13px'}}>
                                 {circledNumbers[subtaskIndex] || `⑩+${subtaskIndex-9}`}. {typeof subtask === 'object' ? subtask.name : subtask}
                               </span>
