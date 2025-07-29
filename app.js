@@ -75,33 +75,6 @@ function App() {
     const [activeTab, setActiveTab] = React.useState('daily');
     const [showAllTasks, setShowAllTasks] = React.useState(false);
 
-    // 用户登录状态管理
-    const [user, setUser] = React.useState(() => {
-      // 预留：从localStorage/sessionStorage加载用户信息
-      const saved = localStorage.getItem('taskManager_user');
-      return saved ? JSON.parse(saved) : null;
-    });
-    const isLoggedIn = !!user;
-    const [showAuth, setShowAuth] = React.useState(false); // 确保初始为false，只有点击按钮才显示弹窗
-
-    // 子任务添加状态管理
-    const [editingNewSubtask, setEditingNewSubtask] = React.useState(false);
-    const [newSubtaskName, setNewSubtaskName] = React.useState('');
-    const [editingTaskId, setEditingTaskId] = React.useState(null);
-
-    // 拖拽排序状态管理
-    const [draggedSubtask, setDraggedSubtask] = React.useState(null);
-    const [dragOverIndex, setDragOverIndex] = React.useState(null);
-
-    // 自定义类别管理
-    const [customCategories, setCustomCategories] = React.useState(() => {
-      const saved = localStorage.getItem('taskManager_customCategories');
-      return saved ? JSON.parse(saved) : [];
-    });
-    const [showAddCategory, setShowAddCategory] = React.useState(false);
-    const [newCategoryName, setNewCategoryName] = React.useState('');
-    const [newCategoryIcon, setNewCategoryIcon] = React.useState('star');
-
     React.useEffect(() => {
       const savedTasks = loadTasksFromStorage();
       if (savedTasks.length > 0) {
@@ -231,147 +204,6 @@ function App() {
       }
     };
 
-    // 子任务添加相关函数
-    const addSubtask = (taskId) => {
-      if (newSubtaskName.trim()) {
-        const task = tasks.find(t => t.id === taskId || t.objectId === taskId);
-        if (task) {
-          const newSubtask = {
-            name: newSubtaskName.trim(),
-            completed: false,
-            priority: task.subtasks ? task.subtasks.length + 1 : 1,
-            originalText: newSubtaskName.trim()
-          };
-          const updatedSubtasks = [...(task.subtasks || []), newSubtask];
-          handleTaskEdit(taskId, { subtasks: updatedSubtasks });
-        }
-      }
-      setEditingNewSubtask(false);
-      setNewSubtaskName('');
-      setEditingTaskId(null);
-    };
-
-    const cancelEdit = () => {
-      setEditingNewSubtask(false);
-      setNewSubtaskName('');
-      setEditingTaskId(null);
-    };
-
-    const startEditSubtask = (taskId) => {
-      setEditingNewSubtask(true);
-      setNewSubtaskName('');
-      setEditingTaskId(taskId);
-    };
-
-    // 拖拽排序相关函数
-    const handleDragStart = (e, taskId, subtaskIndex) => {
-      setDraggedSubtask({ taskId, subtaskIndex });
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/html', e.target.outerHTML);
-    };
-
-    const handleDragOver = (e, index) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      setDragOverIndex(index);
-    };
-
-    const handleDragLeave = () => {
-      setDragOverIndex(null);
-    };
-
-    const handleDrop = (e, taskId, dropIndex) => {
-      e.preventDefault();
-      if (draggedSubtask && draggedSubtask.taskId === taskId) {
-        const task = tasks.find(t => t.id === taskId || t.objectId === taskId);
-        if (task && task.subtasks) {
-          const subtasks = [...task.subtasks];
-          const draggedItem = subtasks[draggedSubtask.subtaskIndex];
-          
-          // 移除拖拽的项目
-          subtasks.splice(draggedSubtask.subtaskIndex, 1);
-          
-          // 在目标位置插入
-          subtasks.splice(dropIndex, 0, draggedItem);
-          
-          // 更新优先级
-          const updatedSubtasks = subtasks.map((subtask, index) => ({
-            ...subtask,
-            priority: index + 1
-          }));
-          
-          handleTaskEdit(taskId, { subtasks: updatedSubtasks });
-        }
-      }
-      setDraggedSubtask(null);
-      setDragOverIndex(null);
-    };
-
-    const handleDragEnd = () => {
-      setDraggedSubtask(null);
-      setDragOverIndex(null);
-    };
-
-    // 自定义类别管理函数
-    const addCustomCategory = () => {
-      if (newCategoryName.trim() && newCategoryIcon) {
-        const newCategory = {
-          id: Date.now().toString(),
-          name: newCategoryName.trim(),
-          icon: newCategoryIcon,
-          color: '#aa96da' // 默认使用品牌色
-        };
-        const updatedCategories = [...customCategories, newCategory];
-        setCustomCategories(updatedCategories);
-        localStorage.setItem('taskManager_customCategories', JSON.stringify(updatedCategories));
-        setNewCategoryName('');
-        setNewCategoryIcon('star');
-        setShowAddCategory(false);
-      }
-    };
-
-    const deleteCustomCategory = (categoryId) => {
-      const updatedCategories = customCategories.filter(cat => cat.id !== categoryId);
-      setCustomCategories(updatedCategories);
-      localStorage.setItem('taskManager_customCategories', JSON.stringify(updatedCategories));
-    };
-
-    const getCategoryIcon = (categoryName) => {
-      // 预设类别图标
-      const presetIcons = {
-        '工作': 'cog',
-        '生活': 'home',
-        '学习': 'book',
-        '健康': 'running'
-      };
-      
-      // 查找自定义类别
-      const customCategory = customCategories.find(cat => cat.name === categoryName);
-      if (customCategory) {
-        return customCategory.icon;
-      }
-      
-      return presetIcons[categoryName] || 'question';
-    };
-
-    const getCategoryColor = (categoryName) => {
-      // 预设类别颜色
-      const presetColors = {
-        '工作': '#3B82F6',
-        '生活': '#FFA500',
-        '学习': '#00B4D8',
-        '健康': '#10B981'
-      };
-      
-      // 查找自定义类别
-      const customCategory = customCategories.find(cat => cat.name === categoryName);
-      if (customCategory) {
-        return customCategory.color;
-      }
-      
-      return presetColors[categoryName] || '#808080';
-    };
-
     // 在每次任务变更后自动保存到localStorage
     React.useEffect(() => { 
       if (tasks.length > 0) {
@@ -403,7 +235,7 @@ function App() {
                   <p style={{fontSize: '12px', color: '#6c757d', margin: 0}}>智能任务管理秘书</p>
                 </div>
               </div>
-              <nav className="flex items-center" style={{gap: '8px'}}>
+              <nav className="flex" style={{gap: '8px'}}>
                 <button
                   onClick={() => setActiveTab('daily')}
                   className={`oval-label-nav ${activeTab === 'daily' ? '' : 'btn-secondary'}`}
@@ -425,29 +257,6 @@ function App() {
                 >
                   任务日历
                 </button>
-                {/* 注册/登录按钮或用户信息 */}
-                {!isLoggedIn ? (
-                  <button
-                    className="btn btn-ghost btn-xs rounded-full px-3 ml-2 border border-gray-300 text-gray-700 hover:border-[#aa96da] hover:text-[#aa96da] transition-all"
-                    style={{fontWeight: 500, fontSize: '13px', minWidth: 'auto', height: '32px', lineHeight: '1.2'} }
-                    onClick={() => setShowAuth(true)}
-                    aria-label="注册/登录"
-                  >
-                    注册/登录
-                  </button>
-                ) : (
-                  <div className="dropdown dropdown-end ml-4">
-                    <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-                      <div className="w-8 rounded-full bg-[#aa96da] flex items-center justify-center text-white font-bold">
-                        {user.email ? user.email[0].toUpperCase() : 'U'}
-                      </div>
-                    </label>
-                    <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40 mt-2">
-                      <li className="px-2 py-1 text-sm text-gray-700">{user.email}</li>
-                      <li><button className="btn btn-sm btn-error w-full" onClick={() => { setUser(null); localStorage.removeItem('taskManager_user'); }}>退出登录</button></li>
-                    </ul>
-                  </div>
-                )}
               </nav>
             </div>
           </div>
@@ -460,7 +269,6 @@ function App() {
                 selectedDate={selectedDate || formatLocalDate(new Date())}
                 tasks={tasks}
                 onTaskUpdate={handleTaskEdit}
-                customCategories={customCategories}
               />
             </div>
           )}
@@ -469,23 +277,7 @@ function App() {
             <div className="max-w-6xl mx-auto">
               <div style={{display: 'flex', gap: '24px'}}>
                 <div style={{width: '400px', flexShrink: 0}}>
-                  <TaskForm 
-                    onTaskCreate={handleTaskCreate} 
-                    isProcessing={isProcessing}
-                    customCategories={customCategories}
-                    onAddCategory={(name, icon) => {
-                      const newCategory = {
-                        id: Date.now().toString(),
-                        name: name,
-                        icon: icon,
-                        color: '#aa96da'
-                      };
-                      const updatedCategories = [...customCategories, newCategory];
-                      setCustomCategories(updatedCategories);
-                      localStorage.setItem('taskManager_customCategories', JSON.stringify(updatedCategories));
-                    }}
-                    onDeleteCategory={deleteCustomCategory}
-                  />
+                  <TaskForm onTaskCreate={handleTaskCreate} isProcessing={isProcessing} />
                 </div>
                 <div style={{flex: 1}}>
                   <div className="card" style={{flex: 1}}>
@@ -530,49 +322,49 @@ function App() {
                                     )}
                                 </h4>
                                   <span style={{fontSize: '12px', color: '#6c757d', display: 'flex', alignItems: 'center', gap: '4px'}}>
-                                    {(() => {
-                                      const categoryColor = getCategoryColor(task.category);
-                                      const icon = getCategoryIcon(task.category);
-                                      
-                                      // 根据背景色计算文字颜色，确保足够的对比度
-                                      const getTextColor = (bgColor) => {
-                                        // 将十六进制颜色转换为RGB
-                                        const hex = bgColor.replace('#', '');
-                                        const r = parseInt(hex.substr(0, 2), 16);
-                                        const g = parseInt(hex.substr(2, 2), 16);
-                                        const b = parseInt(hex.substr(4, 2), 16);
-                                        
-                                        // 计算亮度
-                                        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-                                        
-                                        // 如果背景色较亮，使用深色文字；否则使用白色文字
-                                        return brightness > 128 ? '#333333' : 'white';
-                                      };
-                                      
-                                      const textColor = getTextColor(categoryColor);
-                                      
-                                      return (
-                                        <div style={{
-                                          display: 'inline-flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          gap: '0.2em',
-                                          width: '50.4px',
-                                          height: '23px',
-                                          fontSize: '12px',
-                                          fontWeight: '500',
-                                          color: textColor,
-                                          fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
-                                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                                          transition: 'all 0.2s ease',
-                                          backgroundColor: categoryColor,
-                                          borderRadius: '8px'
-                                        }}>
-                                          <i className={`fas fa-${icon}`} style={{color: textColor, fontSize: '9px'}}></i>
-                                          <span>{task.category}</span>
-                                        </div>
-                                      );
-                                    })()}
+                                    <div style={{
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      gap: '0.2em',
+                                      width: '50.4px',
+                                      height: '23px',
+                                      fontSize: '12px',
+                                      fontWeight: '500',
+                                      color: 'white',
+                                      fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
+                                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                      transition: 'all 0.2s ease',
+                                      ...(() => {
+                                        switch (task.category) {
+                                          case '工作':
+                                            return { backgroundColor: '#3B82F6', borderRadius: '8px' };
+                                          case '生活':
+                                            return { backgroundColor: '#FFA500', borderRadius: '20px' };
+                                          case '健康':
+                                            return { backgroundColor: '#10B981', borderRadius: '8px' };
+                                          case '学习':
+                                            return { backgroundColor: '#00B4D8', borderRadius: '20px' };
+                                          default:
+                                            return { backgroundColor: '#808080', borderRadius: '8px' };
+                                        }
+                                      })()
+                                    }}>
+                                      {(() => {
+                                        switch (task.category) {
+                                          case '工作':
+                                            return <><i className="fas fa-cog" style={{color: 'white', fontSize: '9px'}}></i><span>工作</span></>;
+                                          case '生活':
+                                            return <><i className="fas fa-home" style={{color: 'white', fontSize: '9px'}}></i><span>生活</span></>;
+                                          case '健康':
+                                            return <><i className="fas fa-running" style={{color: 'white', fontSize: '9px'}}></i><span>健康</span></>;
+                                          case '学习':
+                                            return <><i className="fas fa-book" style={{color: 'white', fontSize: '9px'}}></i><span>学习</span></>;
+                                          default:
+                                            return <><i className="fas fa-question" style={{color: 'white', fontSize: '9px'}}></i><span>其它</span></>;
+                                        }
+                                      })()}
+                                    </div>
                                     • 截止: 
                                     {task.editingDeadline ? (
                                       <input
@@ -599,155 +391,31 @@ function App() {
                                   <div style={{marginTop: '8px'}}>
                                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px'}}>
                                       <p style={{fontSize: '12px', fontWeight: '500', margin: 0}}>子任务:</p>
-                                      <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                                        {editingNewSubtask && editingTaskId === task.objectId ? (
-                                          // 编辑状态：显示输入框
-                                          <div style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '4px',
-                                            transform: 'scale(1)',
-                                            opacity: 1,
-                                            transition: 'all 0.2s ease'
-                                          }}>
-                                            <input
-                                              type="text"
-                                              value={newSubtaskName}
-                                              onChange={(e) => setNewSubtaskName(e.target.value)}
-                                              onKeyDown={(e) => {
-                                                if (e.key === 'Enter' && newSubtaskName.trim()) {
-                                                  addSubtask(task.objectId);
-                                                } else if (e.key === 'Escape') {
-                                                  cancelEdit();
-                                                }
-                                              }}
-                                              onBlur={() => {
-                                                if (newSubtaskName.trim()) {
-                                                  addSubtask(task.objectId);
-                                                } else {
-                                                  cancelEdit();
-                                                }
-                                              }}
-                                              autoFocus
-                                              placeholder="输入子任务名称..."
-                                              style={{
-                                                fontSize: '11px',
-                                                border: '1px solid #aa96da',
-                                                borderRadius: '4px',
-                                                padding: '2px 6px',
-                                                width: '140px',
-                                                outline: 'none',
-                                                backgroundColor: 'white',
-                                                boxShadow: '0 2px 4px rgba(170, 150, 218, 0.2)'
-                                              }}
-                                            />
-                                            <button
-                                              onClick={() => addSubtask(task.objectId)}
-                                              style={{
-                                                background: '#aa96da',
-                                                color: '#fff',
-                                                border: 'none',
-                                                borderRadius: '4px',
-                                                padding: '2px 8px',
-                                                fontSize: '11px',
-                                                cursor: 'pointer',
-                                                fontWeight: '500'
-                                              }}
-                                            >
-                                              添加
-                                            </button>
-                                            <button
-                                              onClick={cancelEdit}
-                                              style={{
-                                                background: 'none',
-                                                color: '#6c757d',
-                                                border: '1px solid #6c757d',
-                                                borderRadius: '4px',
-                                                padding: '2px 8px',
-                                                fontSize: '11px',
-                                                cursor: 'pointer'
-                                              }}
-                                            >
-                                              取消
-                                            </button>
-                                          </div>
-                                        ) : (
-                                          // 非编辑状态：显示"+"按钮
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              startEditSubtask(task.objectId);
-                                            }}
-                                            style={{
-                                              width: '26px',
-                                              height: '26px',
-                                              borderRadius: '50%',
-                                              background: '#00C8FF',
-                                              border: 'none',
-                                              color: 'white',
-                                              cursor: 'pointer',
-                                              display: 'flex',
-                                              alignItems: 'center',
-                                              justifyContent: 'center',
-                                              transition: 'all 0.2s ease'
-                                            }}
-                                          >
-                                            <div className="icon-plus text-xs"></div>
-                                          </button>
-                                        )}
-                                      </div>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          const newSubtaskName = prompt('添加新子任务:');
+                                          if (newSubtaskName && newSubtaskName.trim()) {
+                                            const newSubtask = {
+                                              name: newSubtaskName.trim(),
+                                              completed: false,
+                                              priority: task.subtasks.length + 1,
+                                              originalText: newSubtaskName.trim()
+                                            };
+                                            handleTaskEdit(task.objectId, { subtasks: [...task.subtasks, newSubtask] });
+                                          }
+                                        }}
+                                          style={{width: '26px', height: '26px', borderRadius: '50%', background: '#00C8FF', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                                      >
+                                        <div className="icon-plus text-xs"></div>
+                                      </button>
                                     </div>
                                     {task.subtasks.map((subtask, index) => {
                                       const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
                                         const isEditing = subtask.editing;
-                                        const isDragging = draggedSubtask && draggedSubtask.taskId === task.objectId && draggedSubtask.subtaskIndex === index;
-                                        const isDragOver = dragOverIndex === index;
                                       return (
-                                          <div 
-                                            key={index} 
-                                            draggable={!isEditing}
-                                            onDragStart={(e) => handleDragStart(e, task.objectId, index)}
-                                            onDragOver={(e) => handleDragOver(e, index)}
-                                            onDragLeave={handleDragLeave}
-                                            onDrop={(e) => handleDrop(e, task.objectId, index)}
-                                            onDragEnd={handleDragEnd}
-                                            style={{
-                                              fontSize: '11px', 
-                                              color: '#6c757d', 
-                                              marginLeft: '8px', 
-                                              marginBottom: '2px', 
-                                              display: 'flex', 
-                                              alignItems: 'center', 
-                                              gap: '4px', 
-                                              flexWrap: 'wrap',
-                                              padding: '4px 8px',
-                                              borderRadius: '4px',
-                                              cursor: isEditing ? 'default' : 'grab',
-                                              backgroundColor: isDragging ? '#f8f9fa' : isDragOver ? '#e9ecef' : 'transparent',
-                                              border: isDragOver ? '2px dashed #aa96da' : '1px solid transparent',
-                                              opacity: isDragging ? 0.5 : 1,
-                                              transition: 'all 0.2s ease',
-                                              transform: isDragging ? 'rotate(2deg)' : 'none'
-                                            }}
-                                          >
+                                          <div key={index} style={{fontSize: '11px', color: '#6c757d', marginLeft: '8px', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap'}}>
                                           <span style={{fontWeight: '500', color: '#495057'}}>{circledNumbers[index] || `⑩+${index-9}`}</span>
-                                          {!isEditing && (
-                                            <div 
-                                              style={{
-                                                width: '12px',
-                                                height: '12px',
-                                                cursor: 'grab',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                color: '#6c757d',
-                                                fontSize: '8px'
-                                              }}
-                                              title="拖拽排序"
-                                            >
-                                              ⋮⋮
-                                            </div>
-                                          )}
                                             {isEditing ? (
                                               <>
                                                 <input
@@ -957,13 +625,33 @@ function App() {
                                         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                                         transition: 'all 0.2s ease',
                                         ...(() => {
-                                          const color = getCategoryColor(task.category);
-                                          return { backgroundColor: color, borderRadius: '8px' };
+                                          switch (task.category) {
+                                            case '工作':
+                                              return { backgroundColor: '#3B82F6', borderRadius: '8px' };
+                                            case '生活':
+                                              return { backgroundColor: '#FFA500', borderRadius: '20px' };
+                                            case '健康':
+                                              return { backgroundColor: '#10B981', borderRadius: '8px' };
+                                            case '学习':
+                                              return { backgroundColor: '#00B4D8', borderRadius: '20px' };
+                                            default:
+                                              return { backgroundColor: '#808080', borderRadius: '8px' };
+                                          }
                                         })()
                                       }}>
                                         {(() => {
-                                          const icon = getCategoryIcon(task.category);
-                                          return <><i className={`fas fa-${icon}`} style={{color: 'white', fontSize: '9px'}}></i><span>{task.category}</span></>;
+                                          switch (task.category) {
+                                            case '工作':
+                                              return <><i className="fas fa-cog" style={{color: 'white', fontSize: '9px'}}></i><span>工作</span></>;
+                                            case '生活':
+                                              return <><i className="fas fa-home" style={{color: 'white', fontSize: '9px'}}></i><span>生活</span></>;
+                                            case '健康':
+                                              return <><i className="fas fa-running" style={{color: 'white', fontSize: '9px'}}></i><span>健康</span></>;
+                                            case '学习':
+                                              return <><i className="fas fa-book" style={{color: 'white', fontSize: '9px'}}></i><span>学习</span></>;
+                                            default:
+                                              return <><i className="fas fa-question" style={{color: 'white', fontSize: '9px'}}></i><span>其它</span></>;
+                                          }
                                         })()}
                                       </div>
                                       • 截止: 
@@ -992,155 +680,31 @@ function App() {
                                       <div style={{marginTop: '8px'}}>
                                         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px'}}>
                                           <p style={{fontSize: '12px', fontWeight: '500', margin: 0}}>子任务:</p>
-                                          <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                                            {editingNewSubtask && editingTaskId === task.objectId ? (
-                                              // 编辑状态：显示输入框
-                                              <div style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '4px',
-                                                transform: 'scale(1)',
-                                                opacity: 1,
-                                                transition: 'all 0.2s ease'
-                                              }}>
-                                                <input
-                                                  type="text"
-                                                  value={newSubtaskName}
-                                                  onChange={(e) => setNewSubtaskName(e.target.value)}
-                                                  onKeyDown={(e) => {
-                                                    if (e.key === 'Enter' && newSubtaskName.trim()) {
-                                                      addSubtask(task.objectId);
-                                                    } else if (e.key === 'Escape') {
-                                                      cancelEdit();
-                                                    }
-                                                  }}
-                                                  onBlur={() => {
-                                                    if (newSubtaskName.trim()) {
-                                                      addSubtask(task.objectId);
-                                                    } else {
-                                                      cancelEdit();
-                                                    }
-                                                  }}
-                                                  autoFocus
-                                                  placeholder="输入子任务名称..."
-                                                  style={{
-                                                    fontSize: '11px',
-                                                    border: '1px solid #aa96da',
-                                                    borderRadius: '4px',
-                                                    padding: '2px 6px',
-                                                    width: '140px',
-                                                    outline: 'none',
-                                                    backgroundColor: 'white',
-                                                    boxShadow: '0 2px 4px rgba(170, 150, 218, 0.2)'
-                                                  }}
-                                                />
-                                                <button
-                                                  onClick={() => addSubtask(task.objectId)}
-                                                  style={{
-                                                    background: '#aa96da',
-                                                    color: '#fff',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    padding: '2px 8px',
-                                                    fontSize: '11px',
-                                                    cursor: 'pointer',
-                                                    fontWeight: '500'
-                                                  }}
-                                                >
-                                                  添加
-                                                </button>
-                                                <button
-                                                  onClick={cancelEdit}
-                                                  style={{
-                                                    background: 'none',
-                                                    color: '#6c757d',
-                                                    border: '1px solid #6c757d',
-                                                    borderRadius: '4px',
-                                                    padding: '2px 8px',
-                                                    fontSize: '11px',
-                                                    cursor: 'pointer'
-                                                  }}
-                                                >
-                                                  取消
-                                                </button>
-                                              </div>
-                                            ) : (
-                                              // 非编辑状态：显示"+"按钮
-                                              <button
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  startEditSubtask(task.objectId);
-                                                }}
-                                                style={{
-                                                  width: '26px',
-                                                  height: '26px',
-                                                  borderRadius: '50%',
-                                                  background: '#00C8FF',
-                                                  border: 'none',
-                                                  color: 'white',
-                                                  cursor: 'pointer',
-                                                  display: 'flex',
-                                                  alignItems: 'center',
-                                                  justifyContent: 'center',
-                                                  transition: 'all 0.2s ease'
-                                                }}
-                                              >
-                                                <div className="icon-plus text-xs"></div>
-                                              </button>
-                                            )}
-                                          </div>
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              const newSubtaskName = prompt('添加新子任务:');
+                                              if (newSubtaskName && newSubtaskName.trim()) {
+                                                const newSubtask = {
+                                                  name: newSubtaskName.trim(),
+                                                  completed: false,
+                                                  priority: task.subtasks.length + 1,
+                                                  originalText: newSubtaskName.trim()
+                                                };
+                                                handleTaskEdit(task.objectId, { subtasks: [...task.subtasks, newSubtask] });
+                                              }
+                                            }}
+                                            style={{width: '26px', height: '26px', borderRadius: '50%', background: '#00C8FF', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                                          >
+                                            <div className="icon-plus text-xs"></div>
+                                          </button>
                                         </div>
                                         {task.subtasks.filter(subtask => typeof subtask === 'object' && subtask.date === selectedDate).map((subtask, index) => {
                                           const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
                                           const isEditing = subtask.editing;
-                                          const isDragging = draggedSubtask && draggedSubtask.taskId === task.objectId && draggedSubtask.subtaskIndex === index;
-                                          const isDragOver = dragOverIndex === index;
                                           return (
-                                            <div 
-                                              key={index} 
-                                              draggable={!isEditing}
-                                              onDragStart={(e) => handleDragStart(e, task.objectId, index)}
-                                              onDragOver={(e) => handleDragOver(e, index)}
-                                              onDragLeave={handleDragLeave}
-                                              onDrop={(e) => handleDrop(e, task.objectId, index)}
-                                              onDragEnd={handleDragEnd}
-                                              style={{
-                                                fontSize: '11px', 
-                                                color: '#6c757d', 
-                                                marginLeft: '8px', 
-                                                marginBottom: '2px', 
-                                                display: 'flex', 
-                                                alignItems: 'center', 
-                                                gap: '4px', 
-                                                flexWrap: 'wrap',
-                                                padding: '4px 8px',
-                                                borderRadius: '4px',
-                                                cursor: isEditing ? 'default' : 'grab',
-                                                backgroundColor: isDragging ? '#f8f9fa' : isDragOver ? '#e9ecef' : 'transparent',
-                                                border: isDragOver ? '2px dashed #aa96da' : '1px solid transparent',
-                                                opacity: isDragging ? 0.5 : 1,
-                                                transition: 'all 0.2s ease',
-                                                transform: isDragging ? 'rotate(2deg)' : 'none'
-                                              }}
-                                            >
+                                            <div key={index} style={{fontSize: '11px', color: '#6c757d', marginLeft: '8px', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap'}}>
                                               <span style={{fontWeight: '500', color: '#495057'}}>{circledNumbers[index] || `⑩+${index-9}`}</span>
-                                              {!isEditing && (
-                                                <div 
-                                                  style={{
-                                                    width: '12px',
-                                                    height: '12px',
-                                                    cursor: 'grab',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    color: '#6c757d',
-                                                    fontSize: '8px'
-                                                  }}
-                                                  title="拖拽排序"
-                                                >
-                                                  ⋮⋮
-                                                </div>
-                                              )}
                                               {isEditing ? (
                                                 <>
                                                   <input
@@ -1299,13 +863,33 @@ function App() {
                                     transition: 'all 0.2s ease',
                                     marginRight: '8px',
                                     ...(() => {
-                                      const color = getCategoryColor(category);
-                                      return { backgroundColor: color, borderRadius: '8px' };
+                                      switch (category) {
+                                        case '工作':
+                                          return { backgroundColor: '#3B82F6', borderRadius: '8px' };
+                                        case '生活':
+                                          return { backgroundColor: '#FFA500', borderRadius: '20px' };
+                                        case '健康':
+                                          return { backgroundColor: '#10B981', borderRadius: '8px' };
+                                        case '学习':
+                                          return { backgroundColor: '#00B4D8', borderRadius: '20px' };
+                                        default:
+                                          return { backgroundColor: '#808080', borderRadius: '8px' };
+                                      }
                                     })()
                                   }}>
                                     {(() => {
-                                      const icon = getCategoryIcon(category);
-                                      return <><i className={`fas fa-${icon}`} style={{color: 'white', fontSize: '9px'}}></i><span>{category}</span></>;
+                                      switch (category) {
+                                        case '工作':
+                                          return <><i className="fas fa-cog" style={{color: 'white', fontSize: '9px'}}></i><span>工作</span></>;
+                                        case '生活':
+                                          return <><i className="fas fa-home" style={{color: 'white', fontSize: '9px'}}></i><span>生活</span></>;
+                                        case '健康':
+                                          return <><i className="fas fa-running" style={{color: 'white', fontSize: '9px'}}></i><span>健康</span></>;
+                                        case '学习':
+                                          return <><i className="fas fa-book" style={{color: 'white', fontSize: '9px'}}></i><span>学习</span></>;
+                                        default:
+                                          return <><i className="fas fa-question" style={{color: 'white', fontSize: '9px'}}></i><span>其它</span></>;
+                                      }
                                     })()}
                                   </div>
                                 </div>
@@ -1407,8 +991,6 @@ function App() {
             </div>
           )}
         </main>
-        {/* 注册/登录弹窗 */}
-        <AuthModal open={showAuth} onClose={()=>setShowAuth(false)} onAuthSuccess={user=>{setUser(user); setShowAuth(false);}} />
       </div>
     );
   } catch (error) {

@@ -1,4 +1,4 @@
-function DailyTasks({ selectedDate, tasks, onTaskUpdate, customCategories = [] }) {
+function DailyTasks({ selectedDate, tasks, onTaskUpdate }) {
   try {
     const getTodayTasks = () => {
       if (!selectedDate) return [];
@@ -122,19 +122,15 @@ function DailyTasks({ selectedDate, tasks, onTaskUpdate, customCategories = [] }
                 selectedDate={selectedDate}
                 editable={false}
               />
-              {/* 动态渲染自定义类别 */}
-              {customCategories.map(customCat => (
-                <DailyTaskModule
-                  key={customCat.id}
-                  title={customCat.name}
-                  icon={customCat.icon}
-                  tasks={pendingTasks.filter(task => task.category === customCat.name)}
-                  onTaskUpdate={onTaskUpdate}
-                  allTasks={tasks}
-                  selectedDate={selectedDate}
-                  editable={false}
-                />
-              ))}
+              <DailyTaskModule
+                title="其他"
+                icon="folder"
+                tasks={pendingTasks.filter(task => task.category === '其他')}
+                onTaskUpdate={onTaskUpdate}
+                allTasks={tasks}
+                selectedDate={selectedDate}
+                editable={false}
+              />
             </div>
 
             {completedTasks.length > 0 && (
