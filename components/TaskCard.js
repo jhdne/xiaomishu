@@ -1,10 +1,5 @@
-const React = window.React;
-
 function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
   try {
-    // 创建ref来引用popover容器
-    const popoverRef = React.useRef(null);
-
     const getCategoryLabel = (category) => {
       const categoryMap = {
         '工作': 'work',
@@ -27,61 +22,18 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, editable = true }) {
       return imageMap[category] || '其它';
     };
 
-    // 处理删除按钮点击，聚焦popover以触发显示
-    const handleDeleteClick = () => {
-      if (popoverRef.current) {
-        popoverRef.current.focus();
-      }
-    };
-
     return (
       <div className="card" data-name="taskCard" data-file="components/TaskCard.js" style={{borderLeft: `4px solid var(--brand-color)`}}>
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px'}}>
           <h3 style={{fontSize: '16px', fontWeight: '400', margin: 0}}>{task.title}
             <button onClick={() => onEdit(task.objectId, { editingTitle: true })} style={{marginLeft: '8px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}} aria-label="编辑任务标题">✏️</button>
-            {/* 虚拟人入口 */}
-            <button
-              onClick={() => {
-                // 跳转到虚拟人操作页面，携带任务ID
-                window.location.href = `/virtual-assistant?taskId=${task.objectId}`;
-              }}
-              style={{
-                marginLeft: '8px',
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                border: 'none',
-                backgroundColor: '#f8f9fa',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                padding: 0
-              }}
-              aria-label="我来帮你吧"
-            >
-              <img src="virtual/虚拟人（亚洲）.png" alt="虚拟人" style={{width: '10px', height: '10px', borderRadius: '50%'}} />
-            </button>
-            <span style={{marginLeft: '5px', fontSize: '12px', color: '#6c757d', verticalAlign: 'middle'}}>我来帮你吧</span>
           </h3>
-          {/* DaisyUI Popover 删除确认 */}
-          <div className="popover popover-right" ref={popoverRef} tabIndex={0} style={{display: 'inline-block'}}>
-            <button
-              className="btn btn-error btn-sm"
-              style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px'}}
-              tabIndex={0}
-              onClick={handleDeleteClick}
-            >
-              <div className="icon-trash text-sm"></div>
-            </button>
-            <div className="popover-content bg-base-100 shadow-lg rounded-lg p-4" style={{minWidth: '180px'}}>
-              <span className="block text-sm mb-2">确定要删除整个任务吗</span>
-              <div className="flex gap-2 justify-end">
-                <button className="btn btn-error btn-xs" onClick={() => onDelete(task.objectId)}>确认</button>
-                <button className="btn btn-ghost btn-xs" onClick={e => e.currentTarget.closest('.popover').blur()}>取消</button>
-              </div>
-            </div>
-          </div>
+          <button 
+            onClick={() => onDelete(task.objectId)} 
+            style={{background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: '4px'}}
+          >
+            <div className="icon-trash text-sm"></div>
+          </button>
         </div>
         
         <div style={{marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center'}}>

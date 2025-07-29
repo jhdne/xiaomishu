@@ -43,17 +43,6 @@ function formatLocalDate(date) {
   return `${year}-${month}-${day}`;
 }
 
-// 安全日期格式化，防止非法日期导致崩溃
-function safeToLocaleDateString(date) {
-  try {
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return '';
-    return d.toLocaleDateString();
-  } catch {
-    return '';
-  }
-}
-
 // localStorage持久化工具
 function saveTasksToStorage(tasks) {
   try {
@@ -148,8 +137,7 @@ function App() {
           ...taskData,
           createdAt: new Date().toISOString(),
           status: '待分配',
-          completed: false,
-          deadline: taskData.deadline || taskData.endDate || '',
+          completed: false
         };
 
         if (taskData.useAI) {
@@ -208,16 +196,12 @@ function App() {
 
     const handleTaskEdit = async (taskId, updatedData) => {
       try {
-        const updatedTasks = tasks.map(task => {
-          if ((task.id && task.id === taskId) || (task.objectId && task.objectId === taskId)) {
-            return { ...task, ...updatedData };
-          }
-          return task;
-        });
-        setTasks([...updatedTasks]); // 强制新数组引用，确保刷新
+        const updatedTasks = tasks.map(task => 
+          task.id === taskId || task.objectId === taskId ? { ...task, ...updatedData } : task
+        );
+        setTasks(updatedTasks);
         saveTasksToStorage(updatedTasks);
-        const updatedTask = updatedTasks.find(t => (t.id === taskId || t.objectId === taskId));
-        console.log('任务更新成功:', taskId, updatedData, '最新subtasks:', updatedTask?.subtasks);
+        console.log('任务更新成功:', taskId, updatedData);
       } catch (error) {
         console.error('任务更新失败:', error);
       }
@@ -508,7 +492,7 @@ function App() {
                     <div style={{display: 'flex', justifyContent: 'center'}}>
                       <h1 className="title-serif title-serif-large mb-4">任务列表</h1>
                     </div>
-                    {tasks.filter(task => task.status !== '已完成').length === 0 ? (
+                    {tasks.filter(task => task.status === '已分配').length === 0 ? (
                       <div className="text-center" style={{padding: '32px 16px'}}>
                         <div className="icon-clock text-3xl mb-3" style={{color: '#6c757d'}}></div>
                         <p style={{color: '#6c757d', margin: 0}}>暂无任务</p>
@@ -568,25 +552,25 @@ function App() {
                                       const textColor = getTextColor(categoryColor);
                                       
                                       return (
-                                    <div style={{
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      gap: '0.2em',
-                                      width: '50.4px',
-                                      height: '23px',
-                                      fontSize: '12px',
-                                      fontWeight: '500',
+                                        <div style={{
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          gap: '0.2em',
+                                          width: '50.4px',
+                                          height: '23px',
+                                          fontSize: '12px',
+                                          fontWeight: '500',
                                           color: textColor,
-                                      fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
-                                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                                      transition: 'all 0.2s ease',
+                                          fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
+                                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                          transition: 'all 0.2s ease',
                                           backgroundColor: categoryColor,
                                           borderRadius: '8px'
                                         }}>
                                           <i className={`fas fa-${icon}`} style={{color: textColor, fontSize: '9px'}}></i>
                                           <span>{task.category}</span>
-                                    </div>
+                                        </div>
                                       );
                                     })()}
                                     • 截止: 
@@ -602,7 +586,7 @@ function App() {
                                       />
                                     ) : (
                                       <>
-                                        <span>{safeToLocaleDateString(task.deadline) || '无截止时间'}</span>
+                                        <span>{new Date(task.deadline).toLocaleDateString()}</span>
                                         <button
                                           onClick={e => { e.stopPropagation(); handleTaskEdit(task.objectId, { editingDeadline: true }); }}
                                           style={{marginLeft: '4px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}}
@@ -689,9 +673,9 @@ function App() {
                                           </div>
                                         ) : (
                                           // 非编辑状态：显示"+"按钮
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
                                               startEditSubtask(task.objectId);
                                             }}
                                             style={{
@@ -707,48 +691,45 @@ function App() {
                                               justifyContent: 'center',
                                               transition: 'all 0.2s ease'
                                             }}
-                                      >
-                                        <div className="icon-plus text-xs"></div>
-                                      </button>
+                                          >
+                                            <div className="icon-plus text-xs"></div>
+                                          </button>
                                         )}
+                                      </div>
                                     </div>
-                                    </div>
-                                    {task.subtasks && Array.isArray(task.subtasks) && task.subtasks.map((subtask, index) => {
+                                    {task.subtasks.map((subtask, index) => {
                                       const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
-                                      const isObj = typeof subtask === 'object' && subtask !== null;
-                                      const name = isObj ? subtask.name : subtask;
-                                      const date = isObj ? subtask.date : task.deadline;
-                                      const isEditing = isObj && subtask.editing;
-                                      const isDragging = draggedSubtask && draggedSubtask.taskId === task.objectId && draggedSubtask.subtaskIndex === index;
-                                      const isDragOver = dragOverIndex === index;
+                                        const isEditing = subtask.editing;
+                                        const isDragging = draggedSubtask && draggedSubtask.taskId === task.objectId && draggedSubtask.subtaskIndex === index;
+                                        const isDragOver = dragOverIndex === index;
                                       return (
-                                        <div 
-                                          key={index} 
-                                          draggable={!isEditing}
-                                          onDragStart={(e) => handleDragStart(e, task.objectId, index)}
-                                          onDragOver={(e) => handleDragOver(e, index)}
-                                          onDragLeave={handleDragLeave}
-                                          onDrop={(e) => handleDrop(e, task.objectId, index)}
-                                          onDragEnd={handleDragEnd}
-                                          style={{
-                                            fontSize: '11px', 
-                                            color: '#6c757d', 
-                                            marginLeft: '8px', 
-                                            marginBottom: '2px', 
-                                            display: 'flex', 
-                                            alignItems: 'center', 
-                                            gap: '4px', 
-                                            flexWrap: 'wrap',
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            cursor: isEditing ? 'default' : 'grab',
-                                            backgroundColor: isDragging ? '#f8f9fa' : isDragOver ? '#e9ecef' : 'transparent',
-                                            border: isDragOver ? '2px dashed #aa96da' : '1px solid transparent',
-                                            opacity: isDragging ? 0.5 : 1,
-                                            transition: 'all 0.2s ease',
-                                            transform: isDragging ? 'rotate(2deg)' : 'none'
-                                          }}
-                                        >
+                                          <div 
+                                            key={index} 
+                                            draggable={!isEditing}
+                                            onDragStart={(e) => handleDragStart(e, task.objectId, index)}
+                                            onDragOver={(e) => handleDragOver(e, index)}
+                                            onDragLeave={handleDragLeave}
+                                            onDrop={(e) => handleDrop(e, task.objectId, index)}
+                                            onDragEnd={handleDragEnd}
+                                            style={{
+                                              fontSize: '11px', 
+                                              color: '#6c757d', 
+                                              marginLeft: '8px', 
+                                              marginBottom: '2px', 
+                                              display: 'flex', 
+                                              alignItems: 'center', 
+                                              gap: '4px', 
+                                              flexWrap: 'wrap',
+                                              padding: '4px 8px',
+                                              borderRadius: '4px',
+                                              cursor: isEditing ? 'default' : 'grab',
+                                              backgroundColor: isDragging ? '#f8f9fa' : isDragOver ? '#e9ecef' : 'transparent',
+                                              border: isDragOver ? '2px dashed #aa96da' : '1px solid transparent',
+                                              opacity: isDragging ? 0.5 : 1,
+                                              transition: 'all 0.2s ease',
+                                              transform: isDragging ? 'rotate(2deg)' : 'none'
+                                            }}
+                                          >
                                           <span style={{fontWeight: '500', color: '#495057'}}>{circledNumbers[index] || `⑩+${index-9}`}</span>
                                           {!isEditing && (
                                             <div 
@@ -771,21 +752,21 @@ function App() {
                                               <>
                                                 <input
                                                   type="text"
-                                                value={name}
+                                                  value={subtask.name}
                                                   autoFocus
                                                   onChange={e => {
                                                     const updated = [...task.subtasks];
-                                                  updated[index] = { ...(isObj ? subtask : {}), name: e.target.value };
+                                                    updated[index] = { ...subtask, name: e.target.value };
                                                     handleTaskEdit(task.objectId, { subtasks: updated });
                                                   }}
                                                   style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', minWidth: '60px', marginRight: '4px'}}
                                                 />
                                                 <input
                                                   type="date"
-                                                value={date}
+                                                  value={subtask.date || task.deadline}
                                                   onChange={e => {
                                                     const updated = [...task.subtasks];
-                                                  updated[index] = { ...(isObj ? subtask : {}), date: e.target.value };
+                                                    updated[index] = { ...subtask, date: e.target.value };
                                                     handleTaskEdit(task.objectId, { subtasks: updated });
                                                   }}
                                                   style={{fontSize: '11px', border: '1px solid #ccc', borderRadius: '4px', padding: '2px 6px', marginLeft: '4px'}}
@@ -793,7 +774,7 @@ function App() {
                                                 <button
                                                   onClick={() => {
                                                     const updated = [...task.subtasks];
-                                                  updated[index] = { ...(isObj ? subtask : {}), editing: false };
+                                                    updated[index] = { ...subtask, editing: false };
                                                     handleTaskEdit(task.objectId, { subtasks: updated });
                                                   }}
                                                   style={{background: '#aa96da', color: '#fff', border: 'none', borderRadius: '4px', padding: '2px 8px', marginLeft: '4px', fontSize: '11px', cursor: 'pointer'}}
@@ -801,24 +782,24 @@ function App() {
                                               </>
                                             ) : (
                                               <>
-                                              <span style={{flex: 1, wordBreak: 'break-all', whiteSpace: 'pre-line'}}>{name}</span>
+                                                <span style={{flex: 1, wordBreak: 'break-all', whiteSpace: 'pre-line'}}>{subtask.name}</span>
                                                 <span
                                                   style={{color: '#6c757d', minWidth: '70px', cursor: 'pointer'}}
                                                   onClick={e => {
                                                     e.stopPropagation();
                                                     const updated = [...task.subtasks];
-                                                  updated[index] = { ...(isObj ? subtask : {}), editing: true };
+                                                    updated[index] = { ...subtask, editing: true };
                                                     handleTaskEdit(task.objectId, { subtasks: updated });
                                                   }}
                                                   tabIndex={0}
                                                 >
-                                                {safeToLocaleDateString(date || task.deadline)}
+                                                  {subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
                                           </span>
                                           <button
                                                   onClick={e => {
                                               e.stopPropagation();
                                                     const updated = [...task.subtasks];
-                                                  updated[index] = { ...(isObj ? subtask : {}), editing: true };
+                                                    updated[index] = { ...subtask, editing: true };
                                                     handleTaskEdit(task.objectId, { subtasks: updated });
                                                   }}
                                                   style={{background: '#fff', border: '1px solid #aa96da', color: '#aa96da', borderRadius: '50%', width: '16px', height: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginRight: '4px', transition: 'background 0.2s, color 0.2s', fontSize: '8px'}}
@@ -998,7 +979,7 @@ function App() {
                                         />
                                       ) : (
                                         <>
-                                          <span>{safeToLocaleDateString(task.deadline) || '无截止时间'}</span>
+                                          <span>{new Date(task.deadline).toLocaleDateString()}</span>
                                           <button
                                             onClick={e => { e.stopPropagation(); handleTaskEdit(task.objectId, { editingDeadline: true }); }}
                                             style={{marginLeft: '4px', width: '20px', height: '20px', borderRadius: '50%', border: 'none', backgroundColor: '#f8f9fa', color: '#6c757d', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}}
@@ -1085,9 +1066,9 @@ function App() {
                                               </div>
                                             ) : (
                                               // 非编辑状态：显示"+"按钮
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
+                                              <button
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
                                                   startEditSubtask(task.objectId);
                                                 }}
                                                 style={{
@@ -1103,9 +1084,9 @@ function App() {
                                                   justifyContent: 'center',
                                                   transition: 'all 0.2s ease'
                                                 }}
-                                          >
-                                            <div className="icon-plus text-xs"></div>
-                                          </button>
+                                              >
+                                                <div className="icon-plus text-xs"></div>
+                                              </button>
                                             )}
                                           </div>
                                         </div>
@@ -1205,7 +1186,7 @@ function App() {
                                                     }}
                                                     tabIndex={0}
                                                   >
-                                                    {safeToLocaleDateString(subtask.date || task.deadline)}
+                                                    {subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
                                                   </span>
                                                   <button
                                                     onClick={e => {
@@ -1375,60 +1356,18 @@ function App() {
                                         <div style={{fontWeight: '500'}}>{taskIndex + 1}</div>
                                         <div style={{fontWeight: '500'}}>{task.title}</div>
                                         <div style={{color: '#6c757d', fontSize: '12px'}}>
-                                          {safeToLocaleDateString(task.deadline)}
+                                          {new Date(task.deadline).toISOString().split('T')[0]}
                                         </div>
                                         {(() => {
                                           const now = new Date();
+                                          const deadline = new Date(task.deadline);
                                           const hasSubtasks = Array.isArray(task.subtasks) && task.subtasks.length > 0;
-                                          // 修正：没有子任务时直接视为已完成
-                                          if (!task.subtasks || task.subtasks.length === 0) {
-                                            return <span style={{
-                                              display: 'inline-flex',
-                                              alignItems: 'center',
-                                              gap: '4px',
-                                              fontWeight: 600,
-                                              fontSize: '11px',
-                                              color: '#10B981',
-                                              lineHeight: 1,
-                                              userSelect: 'none',
-                                              background: 'none',
-                                              border: 'none',
-                                              padding: 0
-                                            }}>
-                                              <i className="fa-regular fa-circle-check" style={{fontSize: '13px', color: '#10B981'}}></i>已完成
-                                            </span>;
-                                          } else if (hasSubtasks && now <= new Date(task.deadline)) {
-                                            return <span style={{
-                                              display: 'inline-flex',
-                                              alignItems: 'center',
-                                              gap: '4px',
-                                              fontWeight: 600,
-                                              fontSize: '11px',
-                                              color: '#3B82F6',
-                                              lineHeight: 1,
-                                              userSelect: 'none',
-                                              background: 'none',
-                                              border: 'none',
-                                              padding: 0
-                                            }}>
-                                              <i className="fa-regular fa-clock" style={{fontSize: '13px', color: '#3B82F6'}}></i>进行中
-                                            </span>;
-                                          } else if (hasSubtasks && now > new Date(task.deadline)) {
-                                            return <span style={{
-                                              display: 'inline-flex',
-                                              alignItems: 'center',
-                                              gap: '4px',
-                                              fontWeight: 600,
-                                              fontSize: '11px',
-                                              color: '#EF4444',
-                                              lineHeight: 1,
-                                              userSelect: 'none',
-                                              background: 'none',
-                                              border: 'none',
-                                              padding: 0
-                                            }}>
-                                              <i className="fa-regular fa-circle-xmark" style={{fontSize: '13px', color: '#EF4444'}}></i>未完成
-                                            </span>;
+                                          if (!hasSubtasks) {
+                                            return <div style={{color: '#10B981', background: 'none', borderRadius: '4px', padding: '2px 8px'}}>已完成</div>;
+                                          } else if (hasSubtasks && now <= deadline) {
+                                            return <div style={{color: '#3B82F6', background: 'none', borderRadius: '4px', padding: '2px 8px'}}>进行中</div>;
+                                          } else if (hasSubtasks && now > deadline) {
+                                            return <div style={{color: '#fff', background: '#EF4444', borderRadius: '4px', padding: '2px 8px'}}>未完成</div>;
                                           } else {
                                             return null;
                                           }
@@ -1446,7 +1385,7 @@ function App() {
                                                 <span style={{fontWeight: '500', color: '#495057'}}>{circledNumbers[index] || `⑩+${index-9}`}</span>
                                                 <span style={{flex: 1, wordBreak: 'break-all', whiteSpace: 'pre-line'}}>{typeof subtask === 'object' ? subtask.name : subtask}</span>
                                                 <span style={{color: '#6c757d', minWidth: '70px'}}>
-                                                  {safeToLocaleDateString(subtask.date || task.deadline)}
+                                                  {subtask.date ? new Date(subtask.date).toLocaleDateString() : new Date(task.deadline).toLocaleDateString()}
                                                 </span>
                                               </div>
                                             );

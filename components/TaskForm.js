@@ -6,11 +6,6 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
       startDate: '',
       endDate: ''
     });
-    // 本地错误和处理状态
-    const [error, setError] = React.useState('');
-    const [localProcessing, setLocalProcessing] = React.useState(false);
-    // invokeAIAgent 兜底
-    const aiAgent = typeof window !== 'undefined' && window.invokeAIAgent ? window.invokeAIAgent : async () => [];
 
     const [showAddCategory, setShowAddCategory] = React.useState(false);
     const [newCategoryName, setNewCategoryName] = React.useState('');
@@ -294,106 +289,51 @@ function TaskForm({ onTaskCreate, isProcessing, customCategories = [], onAddCate
             </div>
           </div>
 
-          {/* 分段按钮提交区 */}
-          <div className="btn-group w-full mt-4">
-            <button
-              type="button"
-              className="btn btn-primary w-1/2"
-              disabled={isProcessing || localProcessing}
-              onClick={async (e) => {
-                e.preventDefault();
-                console.log('按钮已点击-直接提交', formData);
-                if (!formData.description || !formData.category || !formData.startDate || !formData.endDate) {
-                  alert('请填写完整的任务信息');
-                  return;
-                }
-                if (new Date(formData.startDate) > new Date(formData.endDate)) {
-                  alert('开始时间不能晚于结束时间');
-                  return;
-                }
-                setError('');
-                setLocalProcessing(true);
-                try {
-                  const autoTitle = formData.description.length > 20 
-                    ? formData.description.substring(0, 20) + '...'
-                    : formData.description;
-                  // 自动生成与标题一致的子任务（仅手动添加时）
-                  const subtasks = [
-                    {
-                      name: autoTitle,
-                      date: formData.endDate,
-                      completed: false,
-                      priority: 1,
-                      originalText: autoTitle,
-                      estimatedTime: 60,
-                      workload: 'medium'
-                    }
-                  ];
-                  await onTaskCreate({ ...formData, title: autoTitle, subtasks });
-                } catch (err) {
-                  setError(err.message || '添加失败');
-                } finally {
-                  setLocalProcessing(false);
-                }
-              }}
-            >
-              直接提交
-            </button>
-            <button
-              type="button"
-              className={`btn btn-secondary w-1/2 ${isProcessing || localProcessing ? 'loading' : ''}`}
-              disabled={isProcessing || localProcessing}
-              onClick={async (e) => {
-                e.preventDefault();
-                console.log('按钮已点击-AI优化提交', formData);
-                if (!formData.description || !formData.category || !formData.startDate || !formData.endDate) {
-                  alert('请填写完整的任务信息');
-                  return;
-                }
-                if (new Date(formData.startDate) > new Date(formData.endDate)) {
-                  alert('开始时间不能晚于结束时间');
-                  return;
-                }
-                setError('');
-                setLocalProcessing(true);
-                try {
-                  const autoTitle = formData.description.length > 20 
-                    ? formData.description.substring(0, 20) + '...'
-                    : formData.description;
-                  // 构造AI任务对象
-                  const taskObj = {
-                    description: formData.description,
-                    category: formData.category,
-                    deadline: formData.endDate
-                  };
-                  // 1. 智能拆解
-                  const decomposition = await (window.aiAgent?.decomposeTask?.(taskObj) ?? { subtasks: [formData.description], type: '一次性任务', complexity: '简单' });
-                  console.log('AI拆解结果:', decomposition);
-                  // 2. 智能分配
-                  const schedule = await (window.aiAgent?.scheduleTask?.(taskObj, decomposition) ?? { schedule: decomposition.subtasks.map((name, i) => ({ name, date: formData.endDate, completed: false, priority: i + 1 })) });
-                  console.log('AI分配结果:', schedule);
-                  // 保证每个子任务结构完整
-                  const subtasks = (schedule.schedule || decomposition.subtasks.map((name, i) => ({ name, date: formData.endDate, completed: false, priority: i + 1 })))
-                    .map((subtask, i) => ({
-                      name: subtask.name || (typeof subtask === 'string' ? subtask : ''),
-                      date: subtask.date || formData.endDate,
-                      completed: typeof subtask.completed === 'boolean' ? subtask.completed : false,
-                      priority: typeof subtask.priority === 'number' ? subtask.priority : i + 1,
-                      originalText: subtask.originalText || subtask.name || (typeof subtask === 'string' ? subtask : ''),
-                      estimatedTime: typeof subtask.estimatedTime === 'number' ? subtask.estimatedTime : 60,
-                      workload: subtask.workload || 'medium'
-                    }));
-                  await onTaskCreate({ ...formData, title: autoTitle, subtasks });
-                } catch (err) {
-                  setError(err.message || 'AI拆解失败');
-                } finally {
-                  setLocalProcessing(false);
-                }
-              }}
-            >
-              AI优化提交
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={isProcessing}
+            style={{
+              width: '100%',
+              height: '48px',
+              background: isProcessing ? '#bdc3c7' : '#aa96da',
+              color: 'white',
+              border: 'none',
+              borderRadius: '10px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: isProcessing ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              transition: 'all 300ms ease',
+              boxShadow: isProcessing ? 'none' : '0 4px 15px rgba(170, 150, 218, 0.3)'
+            }}
+            onMouseOver={(e) => {
+              if (!isProcessing) {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 6px 20px rgba(52, 152, 219, 0.4)';
+              }
+            }}
+            onMouseOut={(e) => {
+              if (!isProcessing) {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 4px 15px rgba(52, 152, 219, 0.3)';
+              }
+            }}
+          >
+            {isProcessing ? (
+              <>
+                <div className="icon-loader-2 text-lg animate-spin"></div>
+                AI拆解中...
+              </>
+            ) : (
+              <>
+                <div className="icon-zap text-lg"></div>
+                AI拆解优化
+              </>
+            )}
+          </button>
         </form>
       </div>
     );

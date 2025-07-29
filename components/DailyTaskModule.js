@@ -131,19 +131,19 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks, selectedD
               textColor = getTextColor(backgroundColor);
               
               return (
-            <div className="category-label-icon" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.2em',
-              width: '50.4px',
-              height: '23px',
-              fontSize: '12px',
-              fontWeight: '500',
+                <div className="category-label-icon" style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.2em',
+                  width: '50.4px',
+                  height: '23px',
+                  fontSize: '12px',
+                  fontWeight: '500',
                   color: textColor,
-              fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              transition: 'all 0.2s ease',
+                  fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                  transition: 'all 0.2s ease',
                   backgroundColor: backgroundColor,
                   borderRadius: title === '生活' || title === '学习' ? '20px' : '8px'
                 }}>
@@ -151,7 +151,7 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks, selectedD
                   <span>{title}</span>
                 </div>
               );
-              })()}
+            })()}
             <div style={{ 
               fontFamily: '"Source Han Sans", "思源黑体", sans-serif', 
               color: '#333333', 
@@ -170,15 +170,6 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks, selectedD
                   <h5 className="font-medium text-gray-800" style={{fontSize: '15px', fontWeight: '400'}}>
                     <span className="oval-label-task" style={{marginRight: '8px'}}>{index + 1}</span>
                     {task.title}
-                    <button
-                      className="ml-4 px-3 py-1 rounded bg-blue-500 text-white text-sm font-semibold shadow hover:bg-blue-600 transition-all border-0 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                      style={{marginLeft: '16px', fontSize: '14px', verticalAlign: 'middle'}}
-                      onClick={e => {
-                        e.stopPropagation();
-                        window.location.href = `/virtual-assistant?taskId=${task.objectId}`;
-                      }}
-                      aria-label="让AI来做"
-                    >让AI来做</button>
                   </h5>
                   {task.subtasks && task.subtasks.length > 0 && (
                     <div className="mt-2">
@@ -230,3 +221,5 @@ function DailyTaskModule({ title, tasks, onTaskUpdate, icon, allTasks, selectedD
     return null;
   }
 }
+
+export default DailyTaskModule;
