@@ -121,12 +121,4 @@ function VirtualAssistantPage() {
 // 兼容UMD
 if (typeof window !== 'undefined') {
   window.VirtualAssistantPage = VirtualAssistantPage;
-}
-
-// 若用ReactDOM渲染该页面
-if (typeof window !== 'undefined' && window.location.pathname.startsWith('/virtual-assistant')) {
-  ReactDOM.render(
-    React.createElement(VirtualAssistantPage),
-    document.getElementById('root')
-  );
 } 
